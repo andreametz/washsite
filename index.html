@@ -647,23 +647,51 @@ function renderSaved() {
   const sorted = [...saved].sort((a,b)=>b.totalScore-a.totalScore);
   const byCity = {};
   sorted.forEach(p=>{ const k=p.city+', '+p.state; if(!byCity[k])byCity[k]=[]; byCity[k].push(p); });
-  el.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div class="sh" style="margin-bottom:0">Saved Candidates ('+saved.length+')</div><button class="btn btn-d btn-xs" onclick="if(confirm(\'Clear all?\'))saved=[],persist(),renderSaved()">Clear all</button></div>'+
-    Object.entries(byCity).map(([city,parcels])=>'<div style="margin-bottom:22px"><div class="cgh">'+city+' · '+parcels.length+' parcel'+(parcels.length>1?'s':'')+'</div>'+renderCards(parcels,'_tmp_'+city,false)+'</div>').join('');
-  // fix: renderCards returns nothing for saved, use inline render
-  el.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div class="sh" style="margin-bottom:0">Saved Candidates ('+saved.length+')</div><button class="btn btn-d btn-xs" onclick="if(confirm(\'Clear all?\'))saved=[],persist(),renderSaved()">Clear all</button></div>'+
-    Object.entries(byCity).map(([city,parcels])=>{
-      const html = parcels.map(l=>{
-        const pct=Math.round((l.totalScore/15)*100);
-        const sc=l.totalScore>=11?'sp-hi':l.totalScore>=7?'sp-mid':'sp-lo';
-        const bc=l.totalScore>=11?'#059669':l.totalScore>=7?'#1d4ed8':'#475569';
-        const tier=l.totalScore>=11?'Strong':l.totalScore>=7?'Likely':'Review';
-        const fails=(l.pillars&&l.pillars.fails)||[];
-        const crits=CKEYS.map((k,j)=>{const v=l.scores&&l.scores[k];const mx=CMAX[j];let dc='cu',pt='?';if(v!==null&&v!==undefined){pt=v+'/'+mx;dc=v===0?'cf':v<mx?'cw':'cp';}return '<div class="ci"><div class="cdot '+dc+'"></div>'+CLABELS[j]+'<span class="ci-pt">'+pt+'</span></div>';}).join('');
-        return '<div class="pc '+(l.pillars&&l.pillars.allPass?'pass':'fail')+'" style="margin-bottom:9px"><div class="pc-top"><div style="flex:1;min-width:0"><div class="pc-name">'+l.address+'</div><div class="pc-meta">'+l.acres+' ac · '+(l.price?'$'+Number(l.price).toLocaleString():'TBD')+'</div>'+(fails.length?'<div class="pc-tag pt-fail" style="margin-top:4px">✗ '+fails.join(' | ')+'</div>':'<div class="pc-tag pt-pass" style="margin-top:4px">✓ Pillars pass</div>')+'</div><div class="pc-right"><span class="sp '+sc+'">'+l.totalScore+'/15</span><button class="btn btn-xs btn-d" onclick="unsave(\''+l.address.replace(/'/g,"\\'")+ '\',\''+l.city+'\',\''+l.state+'\');renderSaved()">Remove</button></div></div><div style="margin-bottom:8px"><div class="pb-tr"><div class="pb-fi" style="width:'+pct+'%;background:'+bc+'"></div></div></div><div class="cg">'+crits+'</div>'+((l.unverified&&l.unverified.length)?'<div class="unv">⚠ '+l.unverified.join(' · ')+'</div>':'')+(l.notes?'<div class="pnotes">'+l.notes+'</div>':'')+'</div>';
+
+  let html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div class="sh" style="margin-bottom:0">Saved Candidates ('+saved.length+')</div><button class="btn btn-d btn-xs" onclick="if(confirm(\'Clear all?\'))saved=[],persist(),renderSaved()">Clear all</button></div>';
+
+  Object.entries(byCity).forEach(([city, parcels]) => {
+    html += '<div style="margin-bottom:22px"><div class="cgh">'+city+' &middot; '+parcels.length+' parcel'+(parcels.length>1?'s':'')+'</div>';
+    parcels.forEach((l, idx) => {
+      recalcScore(l);
+      const pct = Math.round((l.totalScore/15)*100);
+      const sc = l.totalScore>=11?'sp-hi':l.totalScore>=7?'sp-mid':'sp-lo';
+      const bc = l.totalScore>=11?'#059669':l.totalScore>=7?'#1d4ed8':'#475569';
+      const tier = l.totalScore>=11?'Strong':l.totalScore>=7?'Likely':'Review';
+      const fails = (l.pillars&&l.pillars.fails)||[];
+      const crits = CKEYS.map((k,j)=>{
+        const v=l.scores&&l.scores[k]; const mx=CMAX[j];
+        let dc='cu',pt='?';
+        if(v!==null&&v!==undefined){pt=v+'/'+mx;dc=v===0?'cf':v<mx?'cw':'cp';}
+        return '<div class="ci"><div class="cdot '+dc+'"></div>'+CLABELS[j]+'<span class="ci-pt">'+pt+'</span></div>';
       }).join('');
-      return '<div style="margin-bottom:22px"><div class="cgh">'+city+' · '+parcels.length+' parcel'+(parcels.length>1?'s':'')+'</div>'+html+'</div>';
-    }).join('');
+      const safeAddr = l.address.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+      const safeCity = l.city.replace(/'/g,"\\'");
+      const safeState = l.state.replace(/'/g,"\\'");
+      const listingBtn = l.listingUrl
+        ? '<a href="'+l.listingUrl+'" target="_blank" style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;background:rgba(224,138,0,.15);border:1px solid rgba(224,138,0,.4);border-radius:4px;color:var(--amber3);font-family:var(--ff-mono);font-size:10px;font-weight:600;text-decoration:none">View Listing ↗</a>'
+        : '';
+      html += '<div class="pc '+(l.pillars&&l.pillars.allPass?'pass':'fail')+'" style="margin-bottom:9px">';
+      html += '<div class="pc-top"><div style="flex:1;min-width:0">';
+      html += '<div class="pc-name">'+l.address+'</div>';
+      html += '<div class="pc-meta">'+(l.acres?l.acres+' ac':'ac TBD')+' &nbsp;&middot;&nbsp; '+(l.price?'$'+Number(l.price).toLocaleString():'Price TBD')+'</div>';
+      html += '<div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin-top:4px">'+listingBtn;
+      html += (fails.length?'<div class="pc-tag pt-fail">✗ '+fails.join(' | ')+'</div>':'<div class="pc-tag pt-pass">✓ Pillars pass</div>');
+      html += '</div></div>';
+      html += '<div class="pc-right"><span class="sp '+sc+'">'+l.totalScore+'/15</span>';
+      html += '<button class="btn btn-xs btn-d" onclick="unsave(\''+safeAddr+'\',\''+safeCity+'\',\''+safeState+'\');renderSaved()">Remove</button>';
+      html += '</div></div>';
+      html += '<div style="margin-bottom:8px"><div class="pb-tr"><div class="pb-fi" style="width:'+pct+'%;background:'+bc+'"></div></div></div>';
+      html += '<div class="cg">'+crits+'</div>';
+      if(l.unverified&&l.unverified.length) html += '<div class="unv">⚠ Unverified: '+l.unverified.join(' · ')+'</div>';
+      if(l.notes) html += '<div class="pnotes">'+l.notes+'</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+  });
+  el.innerHTML = html;
 }
+
 
 // ── CITY TABLE ────────────────────────────────────────────────────────────
 function cscore(mhi){ return (mhi>75000?2:1)+1; }
@@ -724,7 +752,7 @@ function renderDash() {
   badges();
   const grid = document.getElementById('dashCands');
   if (!saved.length) { grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:36px;color:var(--mist);font-size:12px">No candidates saved yet.</div>'; return; }
-  grid.innerHTML = [...saved].sort((a,b)=>b.totalScore-a.totalScore).slice(0,9).map(l=>{
+  grid.innerHTML = [...saved].sort((a,b)=>b.totalScore-a.totalScore).map(l=>{
     const pct=Math.round((l.totalScore/15)*100);
     const sc=l.totalScore>=11?'sp-hi':l.totalScore>=7?'sp-mid':'sp-lo';
     const bc=l.totalScore>=11?'#059669':l.totalScore>=7?'#1d4ed8':'#475569';
