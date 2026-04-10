@@ -640,13 +640,16 @@ function unsave(addr, city, state) {
 // ── SAVED ─────────────────────────────────────────────────────────────────
 function renderSaved() {
   const el = document.getElementById('savedWrap');
+  try {
   if (!saved.length) {
     el.innerHTML='<div class="empty"><div class="empty-ic">◉</div><div class="empty-t">No saved candidates</div><div class="empty-s">Run a parcel scan and click "+ Save" to track parcels here.</div></div>';
     return;
   }
-  // Recalc all scores first, then sort
-  saved.forEach(l => recalcScore(l));
-  const sorted = [...saved].sort((a,b)=>b.totalScore-a.totalScore);
+  // Recalc all scores first, then sort — safe version
+  const sorted = [...saved].map(l => {
+    try { recalcScore(l); } catch(e) { l.totalScore = l.totalScore || 0; }
+    return l;
+  }).sort((a,b)=>(b.totalScore||0)-(a.totalScore||0));
   const byCity = {};
   sorted.forEach(p=>{ const k=(p.city||'Unknown City')+', '+(p.state||'??'); if(!byCity[k])byCity[k]=[]; byCity[k].push(p); });
 
@@ -693,6 +696,10 @@ function renderSaved() {
     html += '</div>';
   });
   el.innerHTML = html;
+  } catch(err) {
+    el.innerHTML = '<div style="padding:20px;color:var(--red2);font-family:var(--ff-mono);font-size:11px">Error rendering saved candidates: ' + err.message + '<br><br>Your data is safe in localStorage. Try refreshing the page.</div>';
+    console.error('renderSaved error:', err);
+  }
 }
 
 
