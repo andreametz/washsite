@@ -294,6 +294,9 @@ body{font-family:var(--ff-sans);background:var(--ink);color:var(--fog);display:f
 <script>
 // ── CITY DATA ──────────────────────────────────────────────────────────────
 const CITIES=[
+["TX","Midland",143687,91169,"South","Permian Basin","tx/midland"],
+["TX","Odessa",119748,73030,"South","Permian Basin","tx/odessa"],
+["TX","Sherman",46397,58859,"South","Texoma","tx/sherman"],
 ["TX","San Antonio",1479835,65056,"South","San Antonio Metro","tx/san_antonio"],
 ["TX","Waco",143570,54365,"South","Central TX","tx/waco"],
 ["TX","Tyler",109215,67486,"South","East TX","tx/tyler"],
@@ -640,8 +643,6 @@ function unsave(addr, city, state) {
 // ── SAVED ─────────────────────────────────────────────────────────────────
 function renderSaved() {
   const el = document.getElementById('savedWrap');
-  // DEBUG
-  console.log('renderSaved called, saved.length=', saved.length, 'saved=', JSON.stringify(saved).substring(0,200));
   if (!saved.length) {
     el.innerHTML = '<div class="empty"><div class="empty-ic">◉</div><div class="empty-t">No saved candidates</div><div class="empty-s">Run a parcel scan and click "+ Save" to track parcels here.</div></div>';
     return;
@@ -799,9 +800,6 @@ function renderDash() {
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────
-// DEBUG INIT
-console.log('INIT: saved from localStorage:', localStorage.getItem('ws_saved') ? JSON.parse(localStorage.getItem('ws_saved')).length + ' items' : 'null');
-console.log('INIT: saved array length:', saved.length);
 badges();
 renderCities();
 renderScoring();
