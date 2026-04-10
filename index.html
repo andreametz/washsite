@@ -187,8 +187,40 @@ body{font-family:var(--ff-sans);background:var(--ink);color:var(--fog);display:f
 
   <!-- SEARCH -->
   <div class="page" id="pg-search">
-    <div class="ib"><strong>How to search:</strong> Type a city in the chat — e.g. "Search Leawood KS for car wash land" — and results load here automatically. Or click "Scan ↗" in the City Database tab.</div>
-    <div class="sbar" id="sbar">Waiting for search results…</div>
+    <div class="card" style="margin-bottom:18px">
+      <div class="sg">
+        <div>
+          <label class="fl">City</label>
+          <input class="fi" id="sCity" placeholder="e.g. Leawood" />
+        </div>
+        <div>
+          <label class="fl">State</label>
+          <input class="fi" id="sState" placeholder="KS" />
+        </div>
+        <div>
+          <label class="fl">Max Price</label>
+          <select class="fsel" id="sPrice">
+            <option value="0">Any price</option>
+            <option value="500000">≤ $500K</option>
+            <option value="1000000" selected>≤ $1M</option>
+            <option value="2000000">≤ $2M</option>
+            <option value="5000000">≤ $5M</option>
+          </select>
+        </div>
+        <div>
+          <label class="fl">Min Acres</label>
+          <select class="fsel" id="sAcres">
+            <option value="0.5" selected>0.5 ac (min)</option>
+            <option value="0.4">0.4 ac</option>
+          </select>
+        </div>
+        <div>
+          <label class="fl">&nbsp;</label>
+          <button class="btn btn-p" id="runBtn" onclick="runSearch()" style="width:100%">Search ↗</button>
+        </div>
+      </div>
+    </div>
+    <div class="sbar" id="sbar">Enter a city and state above, then click Search — or click "Scan ↗" next to any city in the City Database tab.</div>
     <div id="resultsWrap" style="display:none">
       <div class="rh">
         <div><div class="rt" id="rtitle"></div><div class="rs" id="rsub"></div></div>
