@@ -679,7 +679,8 @@ function renderSaved() {
         ? '<a href="'+l.listingUrl+'" target="_blank" style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;background:rgba(224,138,0,.15);border:1px solid rgba(224,138,0,.4);border-radius:4px;color:var(--amber3);font-family:var(--ff-mono);font-size:10px;font-weight:600;text-decoration:none">View Listing ↗</a>'
         : '<a href="'+searchUrl+'" target="_blank" style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;background:var(--ink3);border:1px solid var(--border2);border-radius:4px;color:var(--mist);font-family:var(--ff-mono);font-size:10px;text-decoration:none">Search ↗</a>';
 
-      html += '<div class="pc '+(l.pillars&&l.pillars.allPass?'pass':'fail')+'" style="margin-bottom:9px">';
+      const cardId = 'saved-card-' + saved.indexOf(l);
+      html += '<div class="pc '+(l.pillars&&l.pillars.allPass?'pass':'fail')+'" id="'+cardId+'" style="margin-bottom:9px">';
       html += '<div class="pc-top"><div style="flex:1;min-width:0">';
       html += '<div class="pc-name">'+addr+'</div>';
       html += '<div class="pc-meta">'+(city?city+', '+state+' &nbsp;&middot;&nbsp; ':'')+''+(l.acres?l.acres+' ac':'ac TBD')+' &nbsp;&middot;&nbsp; '+(l.price?'$'+Number(l.price).toLocaleString():'Price TBD')+'</div>';
@@ -757,6 +758,26 @@ function renderScoring() {
 }
 
 // ── DASHBOARD ─────────────────────────────────────────────────────────────
+function goToSaved(address) {
+  go('saved', null);
+  document.getElementById('ni-saved').classList.add('on');
+  setTimeout(function() {
+    // Find the card with matching address
+    const cards = document.querySelectorAll('#savedWrap .pc');
+    for (let i = 0; i < cards.length; i++) {
+      const name = cards[i].querySelector('.pc-name');
+      if (name && name.textContent === address) {
+        cards[i].scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Flash highlight
+        cards[i].style.transition = 'box-shadow 0.3s';
+        cards[i].style.boxShadow = '0 0 0 2px var(--amber2)';
+        setTimeout(function() { cards[i].style.boxShadow = ''; }, 1500);
+        break;
+      }
+    }
+  }, 100);
+}
+
 function renderDash() {
   badges();
   const grid = document.getElementById('dashCands');
@@ -765,7 +786,7 @@ function renderDash() {
     const pct=Math.round((l.totalScore/15)*100);
     const sc=l.totalScore>=11?'sp-hi':l.totalScore>=7?'sp-mid':'sp-lo';
     const bc=l.totalScore>=11?'#059669':l.totalScore>=7?'#1d4ed8':'#475569';
-    return '<div class="cc" onclick="go(\'saved\',null);document.getElementById(\'ni-saved\').classList.add(\'on\')"><div class="cc-top"><div><div class="cc-nm">'+l.address+'</div><div class="cc-mt">'+l.city+', '+l.state+' · '+(l.acres||'?')+'ac</div></div><span class="sp '+sc+'" style="font-size:10px;padding:2px 9px">'+l.totalScore+'/15</span></div><div class="minibar"><div class="minifill" style="width:'+pct+'%;background:'+bc+'"></div></div></div>';
+    return '<div class="cc" style="cursor:pointer" onclick="goToSaved('+JSON.stringify(l.address)+')"><div class="cc-top"><div><div class="cc-nm">'+l.address+'</div><div class="cc-mt">'+l.city+', '+l.state+' · '+(l.acres||'?')+'ac</div></div><span class="sp '+sc+'" style="font-size:10px;padding:2px 9px">'+l.totalScore+'/15</span></div><div class="minibar"><div class="minifill" style="width:'+pct+'%;background:'+bc+'"></div></div></div>';
   }).join('');
 }
 
