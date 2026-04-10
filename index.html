@@ -640,6 +640,8 @@ function unsave(addr, city, state) {
 // ── SAVED ─────────────────────────────────────────────────────────────────
 function renderSaved() {
   const el = document.getElementById('savedWrap');
+  // DEBUG
+  console.log('renderSaved called, saved.length=', saved.length, 'saved=', JSON.stringify(saved).substring(0,200));
   if (!saved.length) {
     el.innerHTML = '<div class="empty"><div class="empty-ic">◉</div><div class="empty-t">No saved candidates</div><div class="empty-s">Run a parcel scan and click "+ Save" to track parcels here.</div></div>';
     return;
@@ -758,39 +760,48 @@ function renderScoring() {
 }
 
 // ── DASHBOARD ─────────────────────────────────────────────────────────────
-function goToSaved(address) {
+function goToSaved(idx) {
   go('saved', null);
   document.getElementById('ni-saved').classList.add('on');
   setTimeout(function() {
-    // Find the card with matching address
-    const cards = document.querySelectorAll('#savedWrap .pc');
-    for (let i = 0; i < cards.length; i++) {
-      const name = cards[i].querySelector('.pc-name');
-      if (name && name.textContent === address) {
-        cards[i].scrollIntoView({ behavior: 'smooth', block: 'start' });
-        // Flash highlight
-        cards[i].style.transition = 'box-shadow 0.3s';
-        cards[i].style.boxShadow = '0 0 0 2px var(--amber2)';
-        setTimeout(function() { cards[i].style.boxShadow = ''; }, 1500);
-        break;
-      }
+    const target = document.getElementById('saved-card-' + idx);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      target.style.transition = 'box-shadow 0.3s';
+      target.style.boxShadow = '0 0 0 2px var(--amber2)';
+      setTimeout(function() { target.style.boxShadow = ''; }, 1500);
     }
-  }, 100);
+  }, 150);
 }
 
 function renderDash() {
   badges();
   const grid = document.getElementById('dashCands');
-  if (!saved.length) { grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:36px;color:var(--mist);font-size:12px">No candidates saved yet.</div>'; return; }
-  grid.innerHTML = [...saved].sort((a,b)=>b.totalScore-a.totalScore).map(l=>{
-    const pct=Math.round((l.totalScore/15)*100);
-    const sc=l.totalScore>=11?'sp-hi':l.totalScore>=7?'sp-mid':'sp-lo';
-    const bc=l.totalScore>=11?'#059669':l.totalScore>=7?'#1d4ed8':'#475569';
-    return '<div class="cc" style="cursor:pointer" onclick="goToSaved('+JSON.stringify(l.address)+')"><div class="cc-top"><div><div class="cc-nm">'+l.address+'</div><div class="cc-mt">'+l.city+', '+l.state+' · '+(l.acres||'?')+'ac</div></div><span class="sp '+sc+'" style="font-size:10px;padding:2px 9px">'+l.totalScore+'/15</span></div><div class="minibar"><div class="minifill" style="width:'+pct+'%;background:'+bc+'"></div></div></div>';
+  if (!saved.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:36px;color:var(--mist);font-size:12px">No candidates saved yet.</div>';
+    return;
+  }
+  // Sort by index so we can reference original saved array positions
+  const indexed = saved.map((l, i) => ({ l, i })).sort((a, b) => (b.l.totalScore||0) - (a.l.totalScore||0));
+  grid.innerHTML = indexed.map(function(item) {
+    const l = item.l, i = item.i;
+    const pct = Math.round(((l.totalScore||0)/15)*100);
+    const sc = (l.totalScore||0)>=11?'sp-hi':(l.totalScore||0)>=7?'sp-mid':'sp-lo';
+    const bc = (l.totalScore||0)>=11?'#059669':(l.totalScore||0)>=7?'#1d4ed8':'#475569';
+    return '<div class="cc" style="cursor:pointer" onclick="goToSaved(' + i + ')">'
+      + '<div class="cc-top"><div>'
+      + '<div class="cc-nm">' + (l.address||'Unknown') + '</div>'
+      + '<div class="cc-mt">' + (l.city||'') + (l.state?', '+l.state:'') + ' &middot; ' + (l.acres||'?') + 'ac</div>'
+      + '</div><span class="sp ' + sc + '" style="font-size:10px;padding:2px 9px">' + (l.totalScore||0) + '/15</span></div>'
+      + '<div class="minibar"><div class="minifill" style="width:' + pct + '%;background:' + bc + '"></div></div>'
+      + '</div>';
   }).join('');
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────
+// DEBUG INIT
+console.log('INIT: saved from localStorage:', localStorage.getItem('ws_saved') ? JSON.parse(localStorage.getItem('ws_saved')).length + ' items' : 'null');
+console.log('INIT: saved array length:', saved.length);
 badges();
 renderCities();
 renderScoring();
