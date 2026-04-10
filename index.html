@@ -3,970 +3,252 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WashSite Intelligence — Tunnel Car Wash Site Finder</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
+<title>WashSite Intelligence</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-/* ═══════════════════════════════════════════
-   DESIGN SYSTEM — Dark intelligence dashboard
-   Ink navy + warm amber + crisp white type
-═══════════════════════════════════════════ */
-:root {
-  --ink:       #080d18;
-  --ink-2:     #0f1829;
-  --ink-3:     #172035;
-  --ink-4:     #1f2d47;
-  --ink-5:     #2a3d5e;
-  --amber:     #e08a00;
-  --amber-2:   #f5a623;
-  --amber-3:   #fbbf24;
-  --amber-pale:#fffbeb;
-  --emerald:   #047857;
-  --emerald-2: #059669;
-  --emerald-l: #d1fae5;
-  --sky:       #1d4ed8;
-  --sky-l:     #dbeafe;
-  --ruby:      #b91c1c;
-  --ruby-l:    #fee2e2;
-  --slate:     #475569;
-  --mist:      #94a3b8;
-  --fog:       #cbd5e1;
-  --snow:      #f8fafc;
-  --white:     #ffffff;
-  --border:    rgba(255,255,255,0.07);
-  --border-2:  rgba(255,255,255,0.12);
-  --glow-amber:0 0 20px rgba(224,138,0,0.25);
-  --ff-serif:  'DM Serif Display', Georgia, serif;
-  --ff-mono:   'DM Mono', 'Courier New', monospace;
-  --ff-sans:   'DM Sans', system-ui, sans-serif;
-  --r-sm:      6px;
-  --r-md:      10px;
-  --r-lg:      14px;
-  --r-xl:      20px;
+:root{
+  --ink:#080d18;--ink2:#0f1829;--ink3:#172035;--ink4:#1f2d47;--ink5:#2a3d5e;
+  --amber:#e08a00;--amber2:#f5a623;--amber3:#fbbf24;
+  --green:#059669;--green2:#6ee7b7;--blue:#1d4ed8;--blue2:#93c5fd;
+  --red:#b91c1c;--red2:#fca5a5;--mist:#94a3b8;--fog:#cbd5e1;--slate:#475569;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --ff-serif:'DM Serif Display',Georgia,serif;
+  --ff-mono:'DM Mono','Courier New',monospace;
+  --ff-sans:'DM Sans',system-ui,sans-serif;
 }
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-html { height: 100%; }
-body {
-  font-family: var(--ff-sans);
-  background: var(--ink);
-  color: var(--fog);
-  height: 100%;
-  overflow: hidden;
-  display: flex;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-/* ── Scrollbar ── */
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--ink-5); border-radius: 2px; }
-
-/* ════════════════════════ LAYOUT ════════════════════════ */
-.shell { display: flex; width: 100%; height: 100vh; overflow: hidden; }
-
-/* ── Sidebar ── */
-.sidebar {
-  width: 230px;
-  flex-shrink: 0;
-  background: var(--ink-2);
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.logo {
-  padding: 22px 20px 18px;
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-}
-.logo-name {
-  font-family: var(--ff-serif);
-  font-size: 22px;
-  color: var(--white);
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-}
-.logo-name em {
-  font-style: italic;
-  color: var(--amber-3);
-}
-.logo-tagline {
-  font-family: var(--ff-mono);
-  font-size: 9px;
-  color: var(--mist);
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  margin-top: 5px;
-}
-
-.nav { padding: 14px 10px; flex: 1; overflow-y: auto; }
-.nav-group-label {
-  font-family: var(--ff-mono);
-  font-size: 8px;
-  color: var(--slate);
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  padding: 10px 10px 5px;
-}
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 10px;
-  border-radius: var(--r-sm);
-  cursor: pointer;
-  color: var(--mist);
-  font-size: 13px;
-  font-weight: 400;
-  transition: background 0.12s, color 0.12s;
-  position: relative;
-  margin-bottom: 1px;
-  user-select: none;
-}
-.nav-item:hover { background: var(--ink-3); color: var(--fog); }
-.nav-item.active { background: var(--ink-4); color: var(--white); font-weight: 500; }
-.nav-item.active::after {
-  content: '';
-  position: absolute;
-  left: 0; top: 7px; bottom: 7px;
-  width: 3px;
-  background: var(--amber-2);
-  border-radius: 0 2px 2px 0;
-}
-.nav-icon { font-size: 15px; width: 18px; text-align: center; flex-shrink: 0; }
-.nav-badge {
-  margin-left: auto;
-  background: var(--amber);
-  color: var(--white);
-  font-family: var(--ff-mono);
-  font-size: 9px;
-  font-weight: 500;
-  padding: 1px 6px;
-  border-radius: 10px;
-  min-width: 20px;
-  text-align: center;
-}
-
-.sidebar-footer {
-  padding: 14px 20px;
-  border-top: 1px solid var(--border);
-  flex-shrink: 0;
-}
-.api-key-section { }
-.api-label {
-  font-family: var(--ff-mono);
-  font-size: 9px;
-  color: var(--slate);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  margin-bottom: 6px;
-}
-.api-key-field {
-  width: 100%;
-  background: var(--ink-3);
-  border: 1px solid var(--border-2);
-  color: var(--fog);
-  font-family: var(--ff-mono);
-  font-size: 11px;
-  padding: 7px 10px;
-  border-radius: var(--r-sm);
-  outline: none;
-  transition: border-color 0.15s;
-}
-.api-key-field:focus { border-color: var(--amber); }
-.api-key-field::placeholder { color: rgba(148,163,184,0.35); }
-.api-status {
-  font-family: var(--ff-mono);
-  font-size: 9px;
-  color: var(--slate);
-  margin-top: 6px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-.status-dot {
-  width: 5px; height: 5px;
-  border-radius: 50%;
-  background: var(--slate);
-  flex-shrink: 0;
-}
-.status-dot.active { background: var(--emerald-2); box-shadow: 0 0 6px var(--emerald-2); }
-
-/* ── Main content area ── */
-.main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  overflow: hidden;
-  background: var(--ink);
-}
-
-.topbar {
-  height: 54px;
-  flex-shrink: 0;
-  background: var(--ink-2);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  padding: 0 28px;
-  gap: 16px;
-}
-.page-heading {
-  font-family: var(--ff-serif);
-  font-size: 19px;
-  color: var(--white);
-  letter-spacing: -0.02em;
-  flex: 1;
-}
-.topbar-meta {
-  font-family: var(--ff-mono);
-  font-size: 10px;
-  color: var(--slate);
-}
-
-.content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 28px;
-}
-
-/* ── Pages ── */
-.page { display: none; }
-.page.active { display: block; }
-
-/* ════════════════════════ COMPONENTS ════════════════════════ */
-
-/* Buttons */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 9px 18px;
-  border-radius: var(--r-sm);
-  font-family: var(--ff-sans);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  border: none;
-  transition: opacity 0.12s, transform 0.1s, box-shadow 0.15s;
-  white-space: nowrap;
-}
-.btn:hover { opacity: 0.88; }
-.btn:active { transform: scale(0.98); }
-.btn:disabled { opacity: 0.3; cursor: not-allowed; }
-.btn-primary { background: var(--amber); color: var(--white); }
-.btn-primary:hover { box-shadow: var(--glow-amber); opacity: 1; }
-.btn-ghost {
-  background: var(--ink-3);
-  border: 1px solid var(--border-2);
-  color: var(--mist);
-}
-.btn-ghost:hover { color: var(--white); border-color: var(--mist); }
-.btn-danger { background: var(--ruby); color: var(--white); }
-.btn-sm { padding: 5px 11px; font-size: 11px; }
-.btn-xs { padding: 3px 9px; font-size: 10px; font-family: var(--ff-mono); }
-
-/* Inputs */
-.field { }
-.field-label {
-  display: block;
-  font-family: var(--ff-mono);
-  font-size: 9px;
-  color: var(--slate);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  margin-bottom: 5px;
-}
-.field-input {
-  width: 100%;
-  background: var(--ink-3);
-  border: 1px solid var(--border-2);
-  color: var(--white);
-  font-family: var(--ff-sans);
-  font-size: 13px;
-  padding: 9px 13px;
-  border-radius: var(--r-sm);
-  outline: none;
-  transition: border-color 0.15s;
-}
-.field-input:focus { border-color: var(--amber-2); }
-.field-input::placeholder { color: rgba(148,163,184,0.4); font-size: 12px; }
-.field-select {
-  width: 100%;
-  background: var(--ink-3);
-  border: 1px solid var(--border-2);
-  color: var(--white);
-  font-family: var(--ff-mono);
-  font-size: 12px;
-  padding: 9px 13px;
-  border-radius: var(--r-sm);
-  outline: none;
-  cursor: pointer;
-}
-.field-select option { background: var(--ink-3); }
-
-/* Cards */
-.card {
-  background: var(--ink-2);
-  border: 1px solid var(--border);
-  border-radius: var(--r-lg);
-  padding: 20px;
-}
-.card-sm { padding: 14px 16px; border-radius: var(--r-md); }
-
-/* Stat cards */
-.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 26px; }
-.stat-card {
-  background: var(--ink-2);
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  padding: 16px 18px;
-  position: relative;
-  overflow: hidden;
-}
-.stat-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 2px;
-  background: var(--ink-4);
-}
-.stat-card.amber::before { background: var(--amber-2); }
-.stat-card.emerald::before { background: var(--emerald-2); }
-.stat-card.sky::before { background: #3b82f6; }
-.stat-lbl {
-  font-family: var(--ff-mono);
-  font-size: 9px;
-  color: var(--slate);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  margin-bottom: 8px;
-}
-.stat-val {
-  font-family: var(--ff-mono);
-  font-size: 30px;
-  font-weight: 500;
-  color: var(--white);
-  line-height: 1;
-}
-.stat-card.amber .stat-val { color: var(--amber-3); }
-.stat-card.emerald .stat-val { color: #6ee7b7; }
-.stat-card.sky .stat-val { color: #93c5fd; }
-.stat-sub { font-size: 11px; color: var(--mist); margin-top: 6px; }
-
-/* Score badges */
-.score-pill {
-  display: inline-flex;
-  align-items: center;
-  font-family: var(--ff-mono);
-  font-size: 12px;
-  font-weight: 500;
-  padding: 4px 12px;
-  border-radius: 20px;
-  border: 1px solid;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-.sp-strong { background: rgba(4,120,87,0.18); border-color: rgba(4,120,87,0.45); color: #6ee7b7; }
-.sp-likely { background: rgba(29,78,216,0.18); border-color: rgba(29,78,216,0.45); color: #93c5fd; }
-.sp-review { background: rgba(71,85,105,0.2); border-color: rgba(71,85,105,0.4); color: var(--mist); }
-
-/* Progress bar */
-.prog-wrap { }
-.prog-labels {
-  display: flex;
-  justify-content: space-between;
-  font-family: var(--ff-mono);
-  font-size: 9px;
-  color: var(--slate);
-  margin-bottom: 4px;
-}
-.prog-track {
-  height: 4px;
-  background: var(--ink-4);
-  border-radius: 2px;
-  overflow: hidden;
-}
-.prog-fill { height: 100%; border-radius: 2px; transition: width 0.4s ease; }
-
-/* Criteria grid */
-.crit-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 5px; }
-.crit-item {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  background: var(--ink-3);
-  border-radius: var(--r-sm);
-  padding: 5px 9px;
-  font-family: var(--ff-mono);
-  font-size: 11px;
-  color: var(--mist);
-}
-.crit-dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.cd-pass { background: var(--emerald-2); box-shadow: 0 0 5px rgba(5,150,105,0.5); }
-.cd-fail { background: #ef4444; }
-.cd-part { background: var(--amber-2); }
-.cd-unkn { background: var(--slate); }
-.crit-pts { margin-left: auto; font-weight: 500; color: var(--white); font-size: 10px; }
-
-/* Parcel cards */
-.parcel-card {
-  background: var(--ink-2);
-  border: 1px solid var(--border);
-  border-radius: var(--r-lg);
-  padding: 20px;
-  margin-bottom: 12px;
-  border-left: 3px solid var(--border);
-  transition: border-color 0.15s, background 0.15s;
-}
-.parcel-card:hover { background: var(--ink-3); }
-.parcel-card.pass-card { border-left-color: var(--emerald-2); }
-.parcel-card.fail-card { border-left-color: var(--ruby); }
-
-.pc-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; flex-wrap: wrap; margin-bottom: 10px; }
-.pc-title { font-size: 14px; font-weight: 600; color: var(--white); line-height: 1.3; }
-.pc-meta { font-family: var(--ff-mono); font-size: 11px; color: var(--mist); margin-top: 3px; line-height: 1.6; }
-.pc-fail-tag {
-  display: inline-block;
-  background: rgba(185,28,28,0.15);
-  border: 1px solid rgba(185,28,28,0.3);
-  color: #fca5a5;
-  font-family: var(--ff-mono);
-  font-size: 9px;
-  padding: 2px 8px;
-  border-radius: 4px;
-  margin-top: 5px;
-}
-.pc-pass-tag {
-  display: inline-block;
-  background: rgba(4,120,87,0.15);
-  border: 1px solid rgba(4,120,87,0.3);
-  color: #6ee7b7;
-  font-family: var(--ff-mono);
-  font-size: 9px;
-  padding: 2px 8px;
-  border-radius: 4px;
-  margin-top: 5px;
-}
-.pc-score-col { display: flex; flex-direction: column; align-items: flex-end; gap: 7px; flex-shrink: 0; }
-.pc-prog { margin-bottom: 12px; }
-.pc-links { display: flex; gap: 14px; flex-wrap: wrap; font-family: var(--ff-mono); font-size: 11px; margin-top: 10px; }
-.pc-links a { color: var(--amber-2); text-decoration: none; opacity: 0.8; }
-.pc-links a:hover { opacity: 1; text-decoration: underline; }
-.unv-box {
-  background: rgba(245,166,35,0.08);
-  border: 1px solid rgba(245,166,35,0.2);
-  border-radius: var(--r-sm);
-  padding: 7px 11px;
-  font-family: var(--ff-mono);
-  font-size: 10px;
-  color: #fcd34d;
-  margin-top: 9px;
-  line-height: 1.6;
-}
-.notes-box {
-  background: var(--ink-3);
-  border-radius: var(--r-sm);
-  padding: 9px 11px;
-  font-size: 11px;
-  color: var(--mist);
-  margin-top: 9px;
-  line-height: 1.7;
-}
-
-/* Status bar */
-.status-bar {
-  background: var(--ink-3);
-  border: 1px solid var(--border);
-  border-radius: var(--r-sm);
-  padding: 10px 14px;
-  font-family: var(--ff-mono);
-  font-size: 12px;
-  color: var(--mist);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 18px;
-  min-height: 42px;
-}
-.spinner {
-  width: 14px; height: 14px;
-  border-radius: 50%;
-  border: 2px solid rgba(224,138,0,0.25);
-  border-top-color: var(--amber-2);
-  animation: spin 0.7s linear infinite;
-  flex-shrink: 0;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* City table */
-.city-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-.city-table th {
-  font-family: var(--ff-mono);
-  font-size: 9px;
-  font-weight: 500;
-  color: var(--slate);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  padding: 8px 12px;
-  border-bottom: 1px solid var(--border);
-  text-align: left;
-  cursor: pointer;
-  white-space: nowrap;
-}
-.city-table th:hover { color: var(--fog); }
-.city-table td {
-  padding: 9px 12px;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-  vertical-align: middle;
-}
-.city-table tr:hover td { background: var(--ink-2); }
-.city-table tr:last-child td { border-bottom: none; }
-.city-name-cell { font-weight: 500; color: var(--white); font-size: 13px; }
-.st-badge {
-  display: inline-block;
-  font-family: var(--ff-mono);
-  font-size: 9px;
-  font-weight: 500;
-  padding: 1px 6px;
-  border-radius: 4px;
-  background: var(--ink-4);
-  color: var(--mist);
-}
-.sc-badge {
-  display: inline-flex;
-  align-items: center;
-  font-family: var(--ff-mono);
-  font-size: 10px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 10px;
-}
-.sc-3 { background: rgba(224,138,0,0.18); border: 1px solid rgba(224,138,0,0.4); color: var(--amber-3); }
-.sc-2 { background: rgba(29,78,216,0.15); border: 1px solid rgba(29,78,216,0.35); color: #93c5fd; }
-.sc-1 { background: rgba(71,85,105,0.2); border: 1px solid rgba(71,85,105,0.35); color: var(--mist); }
-.mono-sm { font-family: var(--ff-mono); font-size: 11px; color: var(--mist); }
-.zoning-link {
-  font-family: var(--ff-mono);
-  font-size: 10px;
-  color: var(--amber-2);
-  text-decoration: none;
-  border: 1px solid rgba(224,138,0,0.3);
-  padding: 2px 7px;
-  border-radius: 4px;
-  white-space: nowrap;
-}
-.zoning-link:hover { background: rgba(224,138,0,0.1); }
-.scan-action {
-  font-family: var(--ff-mono);
-  font-size: 10px;
-  font-weight: 600;
-  color: #6ee7b7;
-  background: rgba(4,120,87,0.14);
-  border: 1px solid rgba(4,120,87,0.3);
-  border-radius: 4px;
-  padding: 2px 10px;
-  cursor: pointer;
-  white-space: nowrap;
-}
-.scan-action:hover { background: rgba(4,120,87,0.25); }
-
-/* Filter row */
-.filter-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
-.filter-chip {
-  font-family: var(--ff-mono);
-  font-size: 10px;
-  padding: 4px 12px;
-  border-radius: 20px;
-  border: 1px solid var(--border-2);
-  background: transparent;
-  color: var(--mist);
-  cursor: pointer;
-  transition: all 0.12s;
-}
-.filter-chip:hover { border-color: var(--amber); color: var(--amber-2); }
-.filter-chip.on { background: var(--amber); border-color: var(--amber); color: var(--white); }
-.search-box {
-  flex: 1;
-  min-width: 180px;
-  max-width: 280px;
-  background: var(--ink-2);
-  border: 1px solid var(--border-2);
-  color: var(--white);
-  font-family: var(--ff-sans);
-  font-size: 12px;
-  padding: 6px 12px;
-  border-radius: var(--r-sm);
-  outline: none;
-}
-.search-box:focus { border-color: var(--amber-2); }
-.search-box::placeholder { color: rgba(148,163,184,0.4); }
-
-/* Info boxes */
-.info-box {
-  background: rgba(224,138,0,0.06);
-  border: 1px solid rgba(224,138,0,0.18);
-  border-radius: var(--r-md);
-  padding: 14px 16px;
-  font-size: 12px;
-  color: var(--mist);
-  line-height: 1.75;
-  margin-bottom: 20px;
-}
-.info-box strong { color: var(--amber-3); font-weight: 500; }
-
-/* Scoring guide */
-.criterion-row {
-  background: var(--ink-2);
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  padding: 13px 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-  margin-bottom: 8px;
-}
-.cr-name { font-size: 13px; font-weight: 500; color: var(--white); margin-bottom: 3px; }
-.cr-desc { font-family: var(--ff-mono); font-size: 11px; color: var(--mist); }
-.cr-max { font-family: var(--ff-mono); font-size: 12px; font-weight: 600; color: var(--amber-3); white-space: nowrap; flex-shrink: 0; }
-
-/* Saved page */
-.empty-state { text-align: center; padding: 70px 20px; }
-.empty-icon { font-size: 42px; opacity: 0.3; margin-bottom: 14px; }
-.empty-title { font-family: var(--ff-serif); font-size: 20px; color: var(--white); margin-bottom: 8px; }
-.empty-sub { font-size: 13px; color: var(--mist); line-height: 1.7; max-width: 360px; margin: 0 auto; }
-
-/* City group header for saved */
-.city-group-head {
-  font-family: var(--ff-mono);
-  font-size: 10px;
-  color: var(--amber-2);
-  padding: 5px 0;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 10px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-/* Search form grid */
-.search-grid { display: grid; grid-template-columns: 1fr 80px 1fr 1fr auto; gap: 10px; align-items: flex-end; }
-.result-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
-.result-title { font-family: var(--ff-serif); font-size: 17px; color: var(--white); }
-.result-sub { font-family: var(--ff-mono); font-size: 10px; color: var(--mist); margin-top: 2px; }
-.sort-wrap { display: flex; gap: 7px; align-items: center; font-family: var(--ff-mono); font-size: 10px; color: var(--slate); }
-
-/* Legend */
-.legend-bar { display: flex; gap: 14px; flex-wrap: wrap; font-family: var(--ff-mono); font-size: 10px; color: var(--mist); margin-bottom: 14px; }
-.leg { display: flex; align-items: center; gap: 5px; }
-.leg-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-
-/* Candidate mini cards for dashboard */
-.cand-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; margin-bottom: 24px; }
-.cand-card {
-  background: var(--ink-2);
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  padding: 13px 15px;
-  cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
-}
-.cand-card:hover { border-color: rgba(224,138,0,0.4); background: var(--ink-3); }
-.cand-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
-.cand-name { font-size: 13px; font-weight: 500; color: var(--white); line-height: 1.3; }
-.cand-meta { font-family: var(--ff-mono); font-size: 10px; color: var(--mist); margin-top: 2px; }
-.cand-bar { height: 3px; background: var(--ink-4); border-radius: 2px; overflow: hidden; }
-.cand-fill { height: 100%; border-radius: 2px; }
-
-/* Saved badge on parcel */
-.saved-tag {
-  display: inline-block;
-  font-family: var(--ff-mono); font-size: 9px;
-  background: rgba(29,78,216,0.2); border: 1px solid rgba(29,78,216,0.35); color: #93c5fd;
-  padding: 1px 7px; border-radius: 10px; margin-left: 7px;
-}
-
-/* quick-start buttons */
-.quickstart { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
-.qs-btn {
-  background: var(--ink-3);
-  border: 1px solid var(--border-2);
-  color: var(--mist);
-  font-family: var(--ff-mono);
-  font-size: 11px;
-  padding: 6px 13px;
-  border-radius: var(--r-sm);
-  cursor: pointer;
-  transition: all 0.12s;
-}
-.qs-btn:hover { border-color: var(--amber-2); color: var(--amber-2); }
-
-/* Animations */
-@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-.parcel-card { animation: fadeIn 0.2s ease forwards; }
-
-/* Page-specific paddings */
-.section-head { font-family: var(--ff-serif); font-size: 17px; color: var(--white); margin-bottom: 14px; letter-spacing: -0.01em; }
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--ff-sans);background:var(--ink);color:var(--fog);display:flex;height:100vh;font-size:13px}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--ink5);border-radius:2px}
+.shell{display:flex;width:100%;height:100vh;overflow:hidden}
+.sidebar{width:220px;flex-shrink:0;background:var(--ink2);border-right:1px solid var(--border);display:flex;flex-direction:column}
+.main{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden}
+.logo{padding:18px 18px 14px;border-bottom:1px solid var(--border)}
+.logo-name{font-family:var(--ff-serif);font-size:20px;color:#fff;letter-spacing:-0.02em;line-height:1.1}
+.logo-name em{font-style:italic;color:var(--amber3)}
+.logo-tag{font-family:var(--ff-mono);font-size:8px;color:var(--mist);letter-spacing:.15em;text-transform:uppercase;margin-top:4px}
+.nav{padding:10px 8px;flex:1;overflow-y:auto}
+.nav-sec{font-family:var(--ff-mono);font-size:8px;color:var(--slate);letter-spacing:.18em;text-transform:uppercase;padding:8px 8px 4px}
+.ni{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;cursor:pointer;color:var(--mist);font-size:12px;transition:background .12s,color .12s;position:relative;margin-bottom:1px;user-select:none}
+.ni:hover{background:var(--ink3);color:var(--fog)}
+.ni.on{background:var(--ink4);color:#fff;font-weight:500}
+.ni.on::after{content:'';position:absolute;left:0;top:7px;bottom:7px;width:3px;background:var(--amber2);border-radius:0 2px 2px 0}
+.ni-ic{font-size:13px;width:16px;text-align:center;flex-shrink:0}
+.nbadge{margin-left:auto;background:var(--amber);color:#fff;font-family:var(--ff-mono);font-size:9px;padding:1px 5px;border-radius:10px;min-width:18px;text-align:center}
+.sfooter{padding:12px 16px;border-top:1px solid var(--border);flex-shrink:0;font-family:var(--ff-mono);font-size:9px;color:var(--mist);line-height:1.6}
+.topbar{height:50px;flex-shrink:0;background:var(--ink2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px}
+.page-title{font-family:var(--ff-serif);font-size:18px;color:#fff;letter-spacing:-0.02em}
+.page{display:none;flex:1;overflow-y:auto;padding:22px 24px}
+.page.on{display:block}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.sc{background:var(--ink2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;position:relative;overflow:hidden}
+.sc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--ink4)}
+.sc.a::before{background:var(--amber2)}.sc.g::before{background:var(--green)}.sc.b::before{background:#3b82f6}
+.sc-lbl{font-family:var(--ff-mono);font-size:8px;color:var(--slate);letter-spacing:.12em;text-transform:uppercase;margin-bottom:7px}
+.sc-val{font-family:var(--ff-mono);font-size:26px;font-weight:500;color:#fff;line-height:1}
+.sc.a .sc-val{color:var(--amber3)}.sc.g .sc-val{color:var(--green2)}.sc.b .sc-val{color:var(--blue2)}
+.sc-sub{font-size:10px;color:var(--mist);margin-top:5px}
+.sh{font-family:var(--ff-serif);font-size:15px;color:#fff;margin-bottom:12px;letter-spacing:-0.01em}
+.card{background:var(--ink2);border:1px solid var(--border);border-radius:12px;padding:18px}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 16px;border-radius:6px;font-family:var(--ff-sans);font-size:12px;font-weight:500;cursor:pointer;border:none;transition:opacity .12s;white-space:nowrap}
+.btn:active{transform:scale(.98)}.btn:disabled{opacity:.3;cursor:not-allowed}
+.btn-p{background:var(--amber);color:#fff}.btn-p:hover{opacity:.88}
+.btn-g{background:var(--ink3);border:1px solid var(--border2);color:var(--mist)}.btn-g:hover{color:#fff}
+.btn-d{background:var(--red);color:#fff}
+.btn-xs{padding:3px 9px;font-size:10px;font-family:var(--ff-mono)}
+.fl{display:block;font-family:var(--ff-mono);font-size:8px;color:var(--slate);letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px}
+.fi{width:100%;background:var(--ink3);border:1px solid var(--border2);color:#fff;font-family:var(--ff-sans);font-size:12px;padding:8px 11px;border-radius:6px;outline:none;transition:border-color .15s}
+.fi:focus{border-color:var(--amber2)}.fi::placeholder{color:rgba(148,163,184,.4);font-size:11px}
+.fsel{width:100%;background:var(--ink3);border:1px solid var(--border2);color:#fff;font-family:var(--ff-mono);font-size:11px;padding:8px 11px;border-radius:6px;outline:none;cursor:pointer}
+.sg{display:grid;grid-template-columns:1fr 70px 1fr 1fr auto;gap:8px;align-items:flex-end}
+.sbar{background:var(--ink3);border:1px solid var(--border);border-radius:6px;padding:9px 13px;font-family:var(--ff-mono);font-size:11px;color:var(--mist);display:flex;align-items:center;gap:9px;margin-bottom:16px;min-height:38px}
+.spin{width:13px;height:13px;border-radius:50%;border:2px solid rgba(245,166,35,.25);border-top-color:var(--amber2);animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sp{display:inline-flex;align-items:center;font-family:var(--ff-mono);font-size:11px;font-weight:500;padding:3px 11px;border-radius:20px;border:1px solid;white-space:nowrap;flex-shrink:0}
+.sp-hi{background:rgba(5,150,105,.18);border-color:rgba(5,150,105,.45);color:var(--green2)}
+.sp-mid{background:rgba(29,78,216,.18);border-color:rgba(29,78,216,.45);color:var(--blue2)}
+.sp-lo{background:rgba(71,85,105,.2);border-color:rgba(71,85,105,.4);color:var(--mist)}
+.pb-lbl{display:flex;justify-content:space-between;font-family:var(--ff-mono);font-size:9px;color:var(--slate);margin-bottom:3px}
+.pb-tr{height:4px;background:var(--ink4);border-radius:2px;overflow:hidden}
+.pb-fi{height:100%;border-radius:2px}
+.cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:4px}
+.ci{display:flex;align-items:center;gap:6px;background:var(--ink3);border-radius:5px;padding:4px 8px;font-family:var(--ff-mono);font-size:10px;color:var(--mist)}
+.cdot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.cp{background:var(--green);box-shadow:0 0 5px rgba(5,150,105,.5)}.cf{background:#ef4444}.cw{background:var(--amber2)}.cu{background:var(--slate)}
+.ci-pt{margin-left:auto;font-weight:500;color:#fff;font-size:9px}
+.pc{background:var(--ink2);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:10px;border-left:3px solid var(--border);transition:background .15s}
+.pc:hover{background:var(--ink3)}.pc.pass{border-left-color:var(--green)}.pc.fail{border-left-color:var(--red)}
+.pc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:9px}
+.pc-name{font-size:13px;font-weight:600;color:#fff;line-height:1.3}
+.pc-meta{font-family:var(--ff-mono);font-size:10px;color:var(--mist);margin-top:2px;line-height:1.5}
+.pc-tag{display:inline-block;font-family:var(--ff-mono);font-size:9px;padding:2px 7px;border-radius:4px;margin-top:4px}
+.pt-pass{background:rgba(5,150,105,.15);border:1px solid rgba(5,150,105,.3);color:var(--green2)}
+.pt-fail{background:rgba(185,28,28,.15);border:1px solid rgba(185,28,28,.3);color:var(--red2)}
+.pc-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
+.pc-links{display:flex;gap:12px;flex-wrap:wrap;font-family:var(--ff-mono);font-size:10px;margin-top:8px}
+.pc-links a{color:var(--amber2);text-decoration:none;opacity:.8}.pc-links a:hover{opacity:1;text-decoration:underline}
+.unv{background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.2);border-radius:5px;padding:6px 10px;font-family:var(--ff-mono);font-size:9px;color:#fcd34d;margin-top:7px;line-height:1.6}
+.pnotes{font-size:11px;color:var(--mist);background:var(--ink3);border-radius:5px;padding:8px 10px;margin-top:7px;line-height:1.6}
+.filter-row{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.fchip{font-family:var(--ff-mono);font-size:10px;padding:4px 11px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--mist);cursor:pointer;transition:all .12s}
+.fchip:hover{border-color:var(--amber);color:var(--amber2)}.fchip.on{background:var(--amber);border-color:var(--amber);color:#fff}
+.fsrch{background:var(--ink2);border:1px solid var(--border2);color:#fff;font-family:var(--ff-sans);font-size:12px;padding:6px 11px;border-radius:6px;outline:none;min-width:160px;max-width:240px}
+.fsrch:focus{border-color:var(--amber2)}.fsrch::placeholder{color:rgba(148,163,184,.4)}
+.ctbl{width:100%;border-collapse:collapse;font-size:11px}
+.ctbl th{font-family:var(--ff-mono);font-size:8px;font-weight:500;color:var(--slate);text-transform:uppercase;letter-spacing:.1em;padding:7px 11px;border-bottom:1px solid var(--border);text-align:left;cursor:pointer;white-space:nowrap}
+.ctbl th:hover{color:var(--fog)}.ctbl td{padding:8px 11px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
+.ctbl tr:hover td{background:var(--ink2)}.ctbl tr:last-child td{border-bottom:none}
+.cn{font-weight:500;color:#fff;font-size:12px}
+.stb{display:inline-block;font-family:var(--ff-mono);font-size:8px;font-weight:500;padding:1px 5px;border-radius:3px;background:var(--ink4);color:var(--mist)}
+.scb{display:inline-flex;font-family:var(--ff-mono);font-size:9px;font-weight:600;padding:2px 7px;border-radius:10px}
+.scb3{background:rgba(224,138,0,.18);border:1px solid rgba(224,138,0,.4);color:var(--amber3)}
+.scb2{background:rgba(29,78,216,.15);border:1px solid rgba(29,78,216,.35);color:var(--blue2)}
+.scb1{background:rgba(71,85,105,.2);border:1px solid rgba(71,85,105,.35);color:var(--mist)}
+.zlink{font-family:var(--ff-mono);font-size:9px;color:var(--amber2);text-decoration:none;border:1px solid rgba(224,138,0,.3);padding:2px 7px;border-radius:4px;white-space:nowrap}
+.zlink:hover{background:rgba(224,138,0,.1)}
+.scan-btn-sm{font-family:var(--ff-mono);font-size:9px;font-weight:600;color:var(--green2);background:rgba(5,150,105,.14);border:1px solid rgba(5,150,105,.3);border-radius:4px;padding:2px 9px;cursor:pointer;white-space:nowrap}
+.scan-btn-sm:hover{background:rgba(5,150,105,.25)}
+.cr{background:var(--ink2);border:1px solid var(--border);border-radius:8px;padding:12px 15px;display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:7px}
+.cr-nm{font-size:12px;font-weight:500;color:#fff;margin-bottom:3px}.cr-ds{font-family:var(--ff-mono);font-size:10px;color:var(--mist)}.cr-mx{font-family:var(--ff-mono);font-size:11px;font-weight:600;color:var(--amber3);white-space:nowrap;flex-shrink:0}
+.empty{text-align:center;padding:60px 20px}.empty-ic{font-size:38px;opacity:.25;margin-bottom:12px}
+.empty-t{font-family:var(--ff-serif);font-size:18px;color:#fff;margin-bottom:7px}.empty-s{font-size:12px;color:var(--mist);line-height:1.7;max-width:320px;margin:0 auto}
+.cg2{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:9px;margin-bottom:20px}
+.cc{background:var(--ink2);border:1px solid var(--border);border-radius:9px;padding:12px 14px;cursor:pointer;transition:border-color .15s}
+.cc:hover{border-color:rgba(224,138,0,.4);background:var(--ink3)}
+.cc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:7px}
+.cc-nm{font-size:12px;font-weight:500;color:#fff;line-height:1.3}.cc-mt{font-family:var(--ff-mono);font-size:9px;color:var(--mist);margin-top:2px}
+.minibar{height:3px;background:var(--ink4);border-radius:2px;overflow:hidden}.minifill{height:100%;border-radius:2px}
+.ib{background:rgba(224,138,0,.06);border:1px solid rgba(224,138,0,.18);border-radius:9px;padding:13px 15px;font-size:11px;color:var(--mist);line-height:1.75;margin-bottom:18px}
+.ib strong{color:var(--amber3);font-weight:500}
+.qs-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.qb{background:var(--ink3);border:1px solid var(--border2);color:var(--mist);font-family:var(--ff-mono);font-size:10px;padding:5px 12px;border-radius:5px;cursor:pointer;transition:all .12s}
+.qb:hover{border-color:var(--amber2);color:var(--amber2)}
+.rh{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.rt{font-family:var(--ff-serif);font-size:15px;color:#fff}.rs{font-family:var(--ff-mono);font-size:9px;color:var(--mist);margin-top:2px}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-family:var(--ff-mono);font-size:9px;color:var(--mist);margin-bottom:12px}
+.le{display:flex;align-items:center;gap:4px}
+.cgh{font-family:var(--ff-mono);font-size:9px;color:var(--amber2);padding:4px 0;border-bottom:1px solid var(--border);margin-bottom:9px;letter-spacing:.08em;text-transform:uppercase}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}.pc{animation:fadeIn .2s ease forwards}
 </style>
 </head>
 <body>
 <div class="shell">
-
-<!-- ════════════ SIDEBAR ════════════ -->
 <aside class="sidebar">
   <div class="logo">
     <div class="logo-name">Wash<em>Site</em></div>
-    <div class="logo-tagline">Tunnel Car Wash · Site Intelligence</div>
+    <div class="logo-tag">Tunnel Car Wash · Site Intel</div>
   </div>
-
   <nav class="nav">
-    <div class="nav-group-label">Workspace</div>
-    <div class="nav-item active" onclick="nav('dashboard',this)">
-      <span class="nav-icon">◈</span> Dashboard
-    </div>
-    <div class="nav-item" onclick="nav('search',this)">
-      <span class="nav-icon">◎</span> Parcel Search
-    </div>
-    <div class="nav-item" onclick="nav('saved',this)">
-      <span class="nav-icon">◉</span> Saved Candidates
-      <span class="nav-badge" id="saveBadge">0</span>
-    </div>
-
-    <div class="nav-group-label" style="margin-top:8px">Reference</div>
-    <div class="nav-item" onclick="nav('cities',this)">
-      <span class="nav-icon">⬡</span> City Database
-    </div>
-    <div class="nav-item" onclick="nav('scoring',this)">
-      <span class="nav-icon">◧</span> Scoring Guide
-    </div>
+    <div class="nav-sec">Workspace</div>
+    <div class="ni on" id="ni-dashboard" onclick="go('dashboard',this)"><span class="ni-ic">◈</span>Dashboard</div>
+    <div class="ni" id="ni-search" onclick="go('search',this)"><span class="ni-ic">◎</span>Parcel Search</div>
+    <div class="ni" id="ni-saved" onclick="go('saved',this)"><span class="ni-ic">◉</span>Saved Candidates<span class="nbadge" id="nbadge">0</span></div>
+    <div class="nav-sec">Reference</div>
+    <div class="ni" id="ni-cities" onclick="go('cities',this)"><span class="ni-ic">⬡</span>City Database</div>
+    <div class="ni" id="ni-scoring" onclick="go('scoring',this)"><span class="ni-ic">◧</span>Scoring Guide</div>
   </nav>
-
-  <div class="sidebar-footer">
-    <div class="api-key-section">
-      <div class="api-label">Anthropic API Key</div>
-      <div style="color:#6ee7b7;margin-top:4px">&#9679; API connected</div>
-    </div>
+  <div class="sfooter">
+    <span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 5px var(--green);margin-right:5px;vertical-align:middle"></span>API connected &middot; Ready to search
   </div>
 </aside>
-
-<!-- ════════════ MAIN ════════════ -->
 <div class="main">
-  <div class="topbar">
-    <div class="page-heading" id="pageHeading">Dashboard</div>
-    <div class="topbar-meta" id="topbarMeta">50 states · 1,100+ qualifying cities · Max 15 pts</div>
+  <div class="topbar"><div class="page-title" id="ptitle">Dashboard</div></div>
+
+  <!-- DASHBOARD -->
+  <div class="page on" id="pg-dashboard">
+    <div class="stat-row">
+      <div class="sc a"><div class="sc-lbl">Saved Candidates</div><div class="sc-val" id="dSaved">0</div><div class="sc-sub">across all cities</div></div>
+      <div class="sc g"><div class="sc-lbl">Strong ≥ 11 pts</div><div class="sc-val" id="dStrong">0</div><div class="sc-sub">high-confidence sites</div></div>
+      <div class="sc b"><div class="sc-lbl">Cities Scanned</div><div class="sc-val" id="dCities">0</div><div class="sc-sub">of 180+ markets</div></div>
+      <div class="sc"><div class="sc-lbl">Top Score</div><div class="sc-val" id="dTop">—</div><div class="sc-sub">highest parcel found</div></div>
+    </div>
+    <div class="sh">How to search</div>
+    <div class="ib">
+      <strong>Type any city in the chat below</strong> — e.g. "Search vacant land in Leawood KS for a tunnel car wash" — and Claude will search the web, score every parcel, and load results here automatically.<br><br>
+      <strong>Or click a quick-start city:</strong>
+      <div class="qs-row">
+        <button class="qb" onclick="sendPrompt('Search vacant land listings in Brentwood, TN for a tunnel car wash and score each parcel')">Brentwood TN</button>
+        <button class="qb" onclick="sendPrompt('Search vacant land listings in Leawood, KS for a tunnel car wash and score each parcel')">Leawood KS</button>
+        <button class="qb" onclick="sendPrompt('Search vacant land listings in Gilbert, AZ for a tunnel car wash and score each parcel')">Gilbert AZ</button>
+        <button class="qb" onclick="sendPrompt('Search vacant land listings in Alpharetta, GA for a tunnel car wash and score each parcel')">Alpharetta GA</button>
+        <button class="qb" onclick="sendPrompt('Search vacant land listings in Frisco, TX for a tunnel car wash and score each parcel')">Frisco TX</button>
+        <button class="qb" onclick="sendPrompt('Search vacant land listings in Franklin, TN for a tunnel car wash and score each parcel')">Franklin TN</button>
+        <button class="qb" onclick="sendPrompt('Search vacant land listings in Zionsville, IN for a tunnel car wash and score each parcel')">Zionsville IN</button>
+        <button class="qb" onclick="sendPrompt('Search vacant land listings in Fort Mill, SC for a tunnel car wash and score each parcel')">Fort Mill SC</button>
+        <button class="qb" onclick="sendPrompt('Search vacant land listings in Cornelius, NC for a tunnel car wash and score each parcel')">Cornelius NC</button>
+        <button class="qb" onclick="sendPrompt('Search vacant land listings in Overland Park, KS for a tunnel car wash and score each parcel')">Overland Park KS</button>
+        <button class="qb" onclick="sendPrompt('Search vacant land listings in Milton, GA for a tunnel car wash and score each parcel')">Milton GA</button>
+        <button class="qb" onclick="sendPrompt('Search vacant land listings in Queen Creek, AZ for a tunnel car wash and score each parcel')">Queen Creek AZ</button>
+      </div>
+    </div>
+    <div class="sh">Top Saved Candidates</div>
+    <div class="cg2" id="dashCands"><div style="grid-column:1/-1;text-align:center;padding:36px;color:var(--mist);font-size:12px">No candidates saved yet. Run a scan to get started.</div></div>
   </div>
 
-  <!-- ─── DASHBOARD ─── -->
-  <div class="page active content" id="pg-dashboard">
-    <div class="stat-grid">
-      <div class="stat-card amber">
-        <div class="stat-lbl">Saved Candidates</div>
-        <div class="stat-val" id="dSaved">0</div>
-        <div class="stat-sub">parcels saved across all cities</div>
-      </div>
-      <div class="stat-card emerald">
-        <div class="stat-lbl">Strong ≥ 11 pts</div>
-        <div class="stat-val" id="dStrong">0</div>
-        <div class="stat-sub">high-confidence candidates</div>
-      </div>
-      <div class="stat-card sky">
-        <div class="stat-lbl">Cities Scanned</div>
-        <div class="stat-val" id="dCities">0</div>
-        <div class="stat-sub">of 1,100+ qualifying markets</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-lbl">Top Score Found</div>
-        <div class="stat-val" id="dTop">—</div>
-        <div class="stat-sub">highest parcel score</div>
-      </div>
-    </div>
-
-    <div class="section-head">Quick Scan</div>
-    <div class="card" style="margin-bottom:24px">
-      <div class="search-grid">
-        <div class="field">
-          <label class="field-label">City</label>
-          <input class="field-input" id="dCity" placeholder="e.g. Brentwood" />
-        </div>
-        <div class="field">
-          <label class="field-label">State</label>
-          <input class="field-input" id="dState" placeholder="TN" />
-        </div>
-        <div class="field">
-          <label class="field-label">Max Price</label>
-          <select class="field-select" id="dPrice">
-            <option value="0">Any price</option>
-            <option value="500000">≤ $500K</option>
-            <option value="1000000" selected>≤ $1M</option>
-            <option value="2000000">≤ $2M</option>
-            <option value="5000000">≤ $5M</option>
+  <!-- SEARCH -->
+  <div class="page" id="pg-search">
+    <div class="ib"><strong>How to search:</strong> Type a city in the chat — e.g. "Search Leawood KS for car wash land" — and results load here automatically. Or click "Scan ↗" in the City Database tab.</div>
+    <div class="sbar" id="sbar">Waiting for search results…</div>
+    <div id="resultsWrap" style="display:none">
+      <div class="rh">
+        <div><div class="rt" id="rtitle"></div><div class="rs" id="rsub"></div></div>
+        <div style="display:flex;gap:6px;align-items:center;font-family:var(--ff-mono);font-size:9px;color:var(--mist)">
+          Sort: <select class="fsel" id="sortSel" onchange="applySort()" style="width:auto;font-size:10px;padding:4px 8px">
+            <option value="score">Score ↓</option><option value="price">Price ↑</option>
+            <option value="acres">Acres ↑</option><option value="pillars">Pillars first</option>
           </select>
         </div>
-        <div class="field">
-          <label class="field-label">Min Acres</label>
-          <select class="field-select" id="dAcres">
-            <option value="0.5" selected>0.5 ac (required min)</option>
-            <option value="0.4">0.4 ac</option>
-          </select>
-        </div>
-        <div class="field">
-          <label class="field-label">&nbsp;</label>
-          <button class="btn btn-primary" onclick="scanFromDash()" style="width:100%">Scan ↗</button>
-        </div>
       </div>
-      <div class="quickstart">
-        <span style="font-family:var(--ff-mono);font-size:10px;color:var(--slate);align-self:center">Top picks:</span>
-        <button class="qs-btn" onclick="qScan('Brentwood','TN')">Brentwood TN</button>
-        <button class="qs-btn" onclick="qScan('Leawood','KS')">Leawood KS</button>
-        <button class="qs-btn" onclick="qScan('Gilbert','AZ')">Gilbert AZ</button>
-        <button class="qs-btn" onclick="qScan('Alpharetta','GA')">Alpharetta GA</button>
-        <button class="qs-btn" onclick="qScan('Frisco','TX')">Frisco TX</button>
-        <button class="qs-btn" onclick="qScan('Sammamish','WA')">Sammamish WA</button>
-        <button class="qs-btn" onclick="qScan('Fort Mill','SC')">Fort Mill SC</button>
-        <button class="qs-btn" onclick="qScan('Zionsville','IN')">Zionsville IN</button>
-        <button class="qs-btn" onclick="qScan('Cornelius','NC')">Cornelius NC</button>
+      <div class="legend">
+        <span class="le"><span class="cdot cp" style="display:inline-block"></span>Passes</span>
+        <span class="le"><span class="cdot cf" style="display:inline-block"></span>Fails</span>
+        <span class="le"><span class="cdot cw" style="display:inline-block"></span>Partial</span>
+        <span class="le"><span class="cdot cu" style="display:inline-block"></span>Unverified</span>
       </div>
-    </div>
-
-    <div class="section-head">Top Saved Candidates</div>
-    <div class="cand-grid" id="dashCands">
-      <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--mist);font-size:13px">
-        No candidates saved yet. Run a scan and save promising parcels.
-      </div>
-    </div>
-
-    <div class="info-box">
-      <strong>How WashSite works:</strong> Enter any qualifying city and click Scan. Claude AI searches the live web for active commercial land listings (0.5–1.0 ac), then scores each parcel against all 12 car wash site criteria — AADT, competition, zoning, income, price, frontage, and more. Results sort highest score first. Save strong candidates to track them here.<br><br>
-      <strong>Data sources searched:</strong> LoopNet · Crexi · LandWatch · Land.com · Redfin · County assessor records · State DOT traffic counts · Google Maps (car wash competition)
+      <div id="rcards"></div>
     </div>
   </div>
 
-  <!-- ─── PARCEL SEARCH ─── -->
-  <div class="page content" id="pg-search">
-    <div class="card" style="margin-bottom:18px">
-      <div class="search-grid">
-        <div class="field">
-          <label class="field-label">City</label>
-          <input class="field-input" id="sCity" placeholder="e.g. Leawood" />
-        </div>
-        <div class="field">
-          <label class="field-label">State</label>
-          <input class="field-input" id="sState" placeholder="KS" />
-        </div>
-        <div class="field">
-          <label class="field-label">Max Price</label>
-          <select class="field-select" id="sPrice">
-            <option value="0">Any price</option>
-            <option value="500000">≤ $500K</option>
-            <option value="1000000" selected>≤ $1M</option>
-            <option value="2000000">≤ $2M</option>
-            <option value="5000000">≤ $5M</option>
-          </select>
-        </div>
-        <div class="field">
-          <label class="field-label">Min Acres</label>
-          <select class="field-select" id="sAcres">
-            <option value="0.5" selected>0.5 ac (required)</option>
-            <option value="0.4">0.4 ac</option>
-          </select>
-        </div>
-        <div class="field">
-          <label class="field-label">&nbsp;</label>
-          <button class="btn btn-primary" id="runBtn" onclick="runSearch()" style="width:100%">Search ↗</button>
-        </div>
-      </div>
-    </div>
+  <!-- SAVED -->
+  <div class="page" id="pg-saved"><div id="savedWrap"></div></div>
 
-    <div class="status-bar" id="statusBar">Enter a city and state above, then click Search.</div>
-
-    <div id="resultsSection" style="display:none">
-      <div class="result-header">
-        <div>
-          <div class="result-title" id="resultTitle"></div>
-          <div class="result-sub" id="resultSub"></div>
-        </div>
-        <div class="sort-wrap">
-          Sort:
-          <select class="field-select" id="sortSel" onchange="applySort()" style="width:auto;font-size:11px;padding:5px 10px">
-            <option value="score">Score ↓</option>
-            <option value="price">Price ↑</option>
-            <option value="acres">Acres ↑</option>
-            <option value="pillars">Pillars first</option>
-          </select>
-        </div>
-      </div>
-      <div class="legend-bar">
-        <span class="leg"><span class="leg-dot" style="background:var(--emerald-2)"></span>Passes</span>
-        <span class="leg"><span class="leg-dot" style="background:#ef4444"></span>Fails</span>
-        <span class="leg"><span class="leg-dot" style="background:var(--amber-2)"></span>Partial</span>
-        <span class="leg"><span class="leg-dot" style="background:var(--slate)"></span>Unverified</span>
-      </div>
-      <div id="resultCards"></div>
-    </div>
-  </div>
-
-  <!-- ─── SAVED ─── -->
-  <div class="page content" id="pg-saved">
-    <div id="savedContent"></div>
-  </div>
-
-  <!-- ─── CITY DATABASE ─── -->
-  <div class="page content" id="pg-cities">
+  <!-- CITIES -->
+  <div class="page" id="pg-cities">
     <div class="filter-row">
-      <input class="search-box" type="text" id="cityQ" placeholder="Search city or state…" oninput="renderCities()" />
-      <button class="filter-chip on" id="fc-all" onclick="setCF('all',this)">All</button>
-      <button class="filter-chip" id="fc-3" onclick="setCF('3',this)">3 pts ★</button>
-      <button class="filter-chip" id="fc-2" onclick="setCF('2',this)">2 pts</button>
-      <button class="filter-chip" id="fc-1" onclick="setCF('1',this)">1 pt</button>
-      <button class="filter-chip" id="fc-South" onclick="setCF('South',this)">South</button>
-      <button class="filter-chip" id="fc-Midwest" onclick="setCF('Midwest',this)">Midwest</button>
-      <button class="filter-chip" id="fc-West" onclick="setCF('West',this)">West</button>
-      <button class="filter-chip" id="fc-Northeast" onclick="setCF('Northeast',this)">Northeast</button>
-      <span style="margin-left:auto;font-family:var(--ff-mono);font-size:10px;color:var(--slate)" id="cityCountLabel"></span>
+      <input class="fsrch" type="text" id="cityQ" placeholder="Search city or state…" oninput="renderCities()"/>
+      <button class="fchip on" id="fc-all" onclick="setCF('all',this)">All</button>
+      <button class="fchip" id="fc-3" onclick="setCF('3',this)">3 pts ★</button>
+      <button class="fchip" id="fc-2" onclick="setCF('2',this)">2 pts</button>
+      <button class="fchip" id="fc-South" onclick="setCF('South',this)">South</button>
+      <button class="fchip" id="fc-Midwest" onclick="setCF('Midwest',this)">Midwest</button>
+      <button class="fchip" id="fc-West" onclick="setCF('West',this)">West</button>
+      <button class="fchip" id="fc-Northeast" onclick="setCF('Northeast',this)">Northeast</button>
+      <span style="margin-left:auto;font-family:var(--ff-mono);font-size:9px;color:var(--slate)" id="cityCount"></span>
     </div>
     <div style="overflow-x:auto">
-      <table class="city-table">
+      <table class="ctbl">
         <thead><tr>
-          <th onclick="sortCT('city')">City</th>
-          <th onclick="sortCT('state')">ST</th>
-          <th onclick="sortCT('pop')">Population</th>
-          <th onclick="sortCT('mhi')">MHI</th>
-          <th onclick="sortCT('score')">Score</th>
-          <th>Metro / Region</th>
-          <th>Zoning Code</th>
-          <th>Action</th>
+          <th onclick="sortCT('city')">City</th><th onclick="sortCT('state')">ST</th>
+          <th onclick="sortCT('pop')">Population</th><th onclick="sortCT('mhi')">MHI</th>
+          <th onclick="sortCT('score')">Score</th><th>Metro</th><th>Zoning</th><th>Action</th>
         </tr></thead>
-        <tbody id="cityTbody"></tbody>
+        <tbody id="ctbody"></tbody>
       </table>
     </div>
   </div>
 
-  <!-- ─── SCORING GUIDE ─── -->
-  <div class="page content" id="pg-scoring">
-    <div style="max-width:680px">
-      <div class="info-box">
-        <strong>Required Pillars</strong> — a parcel must pass ALL of these to qualify.<br>
-        Population ≥ 30,000 &nbsp;·&nbsp; Competition: 0–1 tunnel/express wash within 1 mi (self-serve &amp; in-bay don't count) &nbsp;·&nbsp;
-        AADT ≥ 13,000 on a true arterial &nbsp;·&nbsp; Parcel size: 0.5–1.0 ac strictly &nbsp;·&nbsp;
-        Zoning: by-right (no SUP/rezoning) &nbsp;·&nbsp; MHI ≥ $50,000
+  <!-- SCORING -->
+  <div class="page" id="pg-scoring">
+    <div style="max-width:640px">
+      <div class="ib"><strong>Required Pillars</strong> — all must pass:<br>
+        Pop ≥ 30,000 &nbsp;·&nbsp; 0–1 tunnel wash within 1 mi &nbsp;·&nbsp; AADT ≥ 13,000 &nbsp;·&nbsp; 0.5–1.0 ac &nbsp;·&nbsp; Zoning by-right &nbsp;·&nbsp; MHI ≥ $50,000
       </div>
-
-      <div class="section-head">Bonus Scoring — 15 Points Total</div>
-      <div id="scoringRows"></div>
-
-      <div style="background:var(--ink-2);border:1px solid var(--border);border-radius:var(--r-md);padding:14px 16px;margin-top:4px;font-family:var(--ff-mono);font-size:11px;color:var(--mist);line-height:1.8">
-        <span style="color:#6ee7b7">Strong candidate</span> = 11–15 pts &nbsp;·&nbsp;
-        <span style="color:#93c5fd">Likely suitable</span> = 7–10 pts &nbsp;·&nbsp;
-        <span style="color:var(--slate)">Needs review</span> = &lt; 7 pts
+      <div class="sh">Bonus Scoring — 15 Points Max</div>
+      <div id="scoreGuide"></div>
+      <div style="background:var(--ink2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-top:4px;font-family:var(--ff-mono);font-size:10px;color:var(--mist);line-height:1.8">
+        <span style="color:var(--green2)">Strong</span> = 11–15 pts &nbsp;·&nbsp;
+        <span style="color:var(--blue2)">Likely suitable</span> = 7–10 pts &nbsp;·&nbsp;
+        <span style="color:var(--slate)">Needs review</span> = &lt;7 pts
       </div>
     </div>
   </div>
@@ -974,744 +256,368 @@ body {
 </div>
 
 <script>
-// ═══════════════════════════════════════════
-//  DATA
-// ═══════════════════════════════════════════
-const CITIES = [
-  // [state, city, pop, mhi, region, metro, municode_slug]
-  ["TX","Southlake",31137,200000,"South","DFW Metroplex","tx/southlake"],
-  ["VA","McLean",49627,200000,"South","Northern VA",null],
-  ["MD","Potomac",45000,200000,"Northeast","DC Metro",null],
-  ["TN","Brentwood",45556,163000,"South","Middle TN","tn/brentwood"],
-  ["VA","Oakton",36528,160000,"South","Northern VA",null],
-  ["WA","Sammamish",66000,155000,"West","Puget Sound","wa/sammamish"],
-  ["CT","Greenwich",63000,150000,"Northeast","SW Connecticut","ct/greenwich"],
-  ["MD","Bethesda",62000,145000,"Northeast","DC Metro",null],
-  ["CA","Fremont",236000,145000,"West","Bay Area","ca/fremont"],
-  ["VA","Ashburn",46026,148000,"South","Northern VA",null],
-  ["VA","South Riding",34352,143000,"South","Northern VA",null],
-  ["MO","Wildwood",36000,142000,"Midwest","St. Louis Metro","mo/wildwood"],
-  ["GA","Milton",41546,142000,"South","Atlanta Metro","ga/milton"],
-  ["WA","Redmond",67000,140000,"West","Puget Sound","wa/redmond"],
-  ["KS","Leawood",33809,139000,"Midwest","KC Metro","ks/leawood"],
-  ["CA","San Jose",1035317,130000,"West","Bay Area","ca/san_jose"],
-  ["CA","Irvine",307670,130000,"West","LA Metro","ca/irvine"],
-  ["TX","Prosper",37869,130000,"South","DFW Metroplex","tx/prosper"],
-  ["TX","Coppell",42154,130000,"South","DFW Metroplex","tx/coppell"],
-  ["CO","Highlands Ranch",102257,120000,"West","Denver Metro",null],
-  ["TX","Fulshear",34868,120000,"South","Houston Metro","tx/fulshear"],
-  ["VA","Leesburg",49171,120000,"South","Northern VA","va/leesburg"],
-  ["VA","Arlington",236254,120000,"South","Northern VA","va/arlington"],
-  ["CO","Ken Caryl",33233,118000,"West","Denver Metro",null],
-  ["WA","Redmond",67000,140000,"West","Puget Sound","wa/redmond"],
-  ["NJ","Marlboro Township",39000,117000,"Northeast","Central NJ","nj/marlboro_township"],
-  ["CO","Erie",33808,117000,"West","N. Colorado","co/erie"],
-  ["TX","Frisco",219304,119000,"South","DFW Metroplex","tx/frisco"],
-  ["TX","Keller",45976,121000,"South","DFW Metroplex","tx/keller"],
-  ["IN","Zionsville",32000,124000,"Midwest","Indy Metro","in/zionsville"],
-  ["IN","Carmel",99000,115000,"Midwest","Indy Metro","in/carmel"],
-  ["IN","Fishers",97000,108000,"Midwest","Indy Metro","in/fishers"],
-  ["TX","Celina",34268,115000,"South","DFW Metroplex","tx/celina"],
-  ["TX","Friendswood",41030,115000,"South","Houston Metro","tx/friendswood"],
-  ["NC","Holly Springs",45248,115000,"South","Triangle","nc/holly_springs"],
-  ["TX","McKinney",210600,101000,"South","DFW Metroplex","tx/mckinney"],
-  ["TX","Allen",110265,110000,"South","DFW Metroplex","tx/allen"],
-  ["TX","Sugar Land",110016,109000,"South","Houston Metro","tx/sugar_land"],
-  ["TN","Collierville",51515,109000,"South","W. Tennessee","tn/collierville"],
-  ["MO","Chesterfield",48000,109000,"Midwest","St. Louis Metro","mo/chesterfield"],
-  ["NC","Morrisville",31422,107000,"South","Triangle","nc/morrisville"],
-  ["CO","Castle Rock",79123,107000,"West","Denver Metro","co/castle_rock"],
-  ["MN","Woodbury",72000,107000,"Midwest","Twin Cities","mn/woodbury"],
-  ["TX","Sachse",30491,107000,"South","DFW Metroplex","tx/sachse"],
-  ["TX","League City",116215,107000,"South","Houston Metro","tx/league_city"],
-  ["GA","Dunwoody",51758,107000,"South","Atlanta Metro","ga/dunwoody"],
-  ["WA","Kirkland",91000,110000,"West","Puget Sound","wa/kirkland"],
-  ["WA","Bothell",50000,107000,"West","Puget Sound","wa/bothell"],
-  ["WA","Seattle",744000,110000,"West","Puget Sound","wa/seattle"],
-  ["MN","Maple Grove",70000,101000,"Midwest","Twin Cities","mn/maple_grove"],
-  ["MN","Lakeville",63000,101000,"Midwest","Twin Cities","mn/lakeville"],
-  ["TX","Round Rock",127786,95000,"South","Austin Metro","tx/round_rock"],
-  ["TX","Pearland",127514,95000,"South","Houston Metro","tx/pearland"],
-  ["TX","Wylie",60334,95000,"South","DFW Metroplex","tx/wylie"],
-  ["TX","Georgetown",85999,90000,"South","Austin Metro","tx/georgetown"],
-  ["OK","Edmond",96825,94000,"South","OKC Metro","ok/edmond"],
-  ["OK","Bixby",30155,103000,"South","Tulsa Metro","ok/bixby"],
-  ["OK","Broken Arrow",118180,82000,"South","Tulsa Metro","ok/broken_arrow"],
-  ["OK","Owasso",40151,87000,"South","Tulsa Metro","ok/owasso"],
-  ["KS","Overland Park",200306,98000,"Midwest","KC Metro","ks/overland_park"],
-  ["KS","Olathe",145057,90000,"Midwest","KC Metro","ks/olathe"],
-  ["KS","Shawnee",68542,90000,"Midwest","KC Metro","ks/shawnee"],
-  ["KS","Lenexa",58384,88000,"Midwest","KC Metro","ks/lenexa"],
-  ["MO","Lee's Summit",95355,93000,"Midwest","KC Metro","mo/lee_s_summit"],
-  ["MO","O'Fallon",72458,98000,"Midwest","St. Louis Metro","mo/o_fallon"],
-  ["NC","Apex",70630,110000,"South","Triangle","nc/apex"],
-  ["NC","Cary",179306,113000,"South","Triangle","nc/cary"],
-  ["GA","Johns Creek",81988,126000,"South","Atlanta Metro","ga/johns_creek"],
-  ["GA","Alpharetta",66855,115000,"South","Atlanta Metro","ga/alpharetta"],
-  ["GA","Sandy Springs",107087,103000,"South","Atlanta Metro","ga/sandy_springs"],
-  ["SC","Mount Pleasant",93993,108000,"South","Lowcountry","sc/mount_pleasant"],
-  ["SC","Fort Mill",30775,93000,"South","Charlotte Metro","sc/fort_mill"],
-  ["SC","Bluffton",33157,88000,"South","Lowcountry","sc/bluffton"],
-  ["TN","Franklin",87133,111000,"South","Middle TN","tn/franklin"],
-  ["TN","Germantown",40673,122000,"South","W. Tennessee","tn/germantown"],
-  ["TN","Spring Hill",55765,93000,"South","Middle TN","tn/spring_hill"],
-  ["CO","Parker",61783,111000,"West","Denver Metro","co/parker"],
-  ["CO","Centennial",108201,110000,"West","Denver Metro","co/centennial"],
-  ["CO","Broomfield",76304,98000,"West","Denver Metro","co/broomfield"],
-  ["CO","Windsor",37914,95000,"West","N. Colorado","co/windsor"],
-  ["UT","Draper",50278,113000,"West","Wasatch Front","ut/draper"],
-  ["UT","South Jordan",82686,100000,"West","Wasatch Front","ut/south_jordan"],
-  ["UT","Riverton",45457,103000,"West","Wasatch Front","ut/riverton"],
-  ["AZ","Gilbert",280262,100000,"West","Phoenix Metro","az/gilbert"],
-  ["AZ","Scottsdale",243821,102000,"West","Phoenix Metro","az/scottsdale"],
-  ["AZ","Queen Creek",71867,103000,"West","Phoenix Metro","az/queen_creek"],
-  ["AZ","Chandler",280136,93000,"West","Phoenix Metro","az/chandler"],
-  ["AZ","Goodyear",107645,92000,"West","Phoenix Metro","az/goodyear"],
-  ["AZ","Peoria",196906,85000,"West","Phoenix Metro","az/peoria"],
-  ["AR","Bentonville",58249,113000,"South","NW Arkansas","ar/bentonville"],
-  ["IL","Naperville",149000,107000,"Midwest","Chicago Metro","il/naperville"],
-  ["IL","Orland Park",58000,100000,"Midwest","Chicago Metro","il/orland_park"],
-  ["MI","Troy",84000,100000,"Midwest","Detroit Metro","mi/troy"],
-  ["MI","Novi",59000,100000,"Midwest","Detroit Metro","mi/novi"],
-  ["MI","Farmington Hills",83000,93000,"Midwest","Detroit Metro","mi/farmington_hills"],
-  ["OH","Dublin",46000,109000,"Midwest","Columbus Metro","oh/dublin"],
-  ["OH","Mason",32000,100000,"Midwest","SW Ohio","oh/mason"],
-  ["OH","Westerville",37000,90000,"Midwest","Columbus Metro","oh/westerville"],
-  ["VA","Virginia Beach",456349,86000,"South","Hampton Roads","va/virginia_beach"],
-  ["VA","Chesapeake",252583,95000,"South","Hampton Roads","va/chesapeake"],
-  ["NV","Henderson",340000,82000,"West","Las Vegas Metro","nv/henderson"],
-  ["NV","Summerlin South",32000,100000,"West","Las Vegas Metro",null],
-  ["OR","Lake Oswego",39000,112000,"West","Portland Metro","or/lake_oswego"],
-  ["OR","Tigard",55000,85000,"West","Portland Metro","or/tigard"],
-  ["FL","Weston",68837,107000,"South","SE Florida","fl/weston"],
-  ["FL","Wellington",62146,93000,"South","Palm Beach","fl/wellington"],
-  ["FL","Palm Beach Gardens",60959,96000,"South","Palm Beach","fl/palm_beach_gardens"],
-  ["FL","Coral Gables",49802,108000,"South","SE Florida","fl/coral_gables"],
-  ["FL","Davie",108346,82000,"South","SE Florida","fl/davie"],
-  ["FL","Horizon West",67416,94000,"South","Central FL",null],
-  ["FL","Lakewood Ranch",43945,97000,"South","SW Florida",null],
-  ["NC","Cornelius",32783,103000,"South","Charlotte Metro","nc/cornelius"],
-  ["NC","Huntersville",63969,93000,"South","Charlotte Metro","nc/huntersville"],
-  ["NC","Matthews",30577,93000,"South","Charlotte Metro","nc/matthews"],
-  ["NC","Wake Forest",52844,99000,"South","Triangle","nc/wake_forest"],
-  ["NC","Mooresville",52381,82000,"South","Charlotte Metro","nc/mooresville"],
-  ["NC","Indian Trail",42036,92000,"South","Charlotte Metro","nc/indian_trail"],
-  ["NC","Fuquay-Varina",40485,97000,"South","Triangle","nc/fuquay-varina"],
-  ["TX","Mansfield",77510,103000,"South","DFW Metroplex","tx/mansfield"],
-  ["TX","Flower Mound",78389,128000,"South","DFW Metroplex","tx/flower_mound"],
-  ["TX","Cedar Park",78301,102000,"South","Austin Metro","tx/cedar_park"],
-  ["TX","Missouri City",76558,91000,"South","Houston Metro","tx/missouri_city"],
-  ["TX","Leander",74067,99000,"South","Austin Metro","tx/leander"],
-  ["TX","Rockwall",51168,99000,"South","DFW Metroplex","tx/rockwall"],
-  ["TX","Grapevine",51139,89000,"South","DFW Metroplex","tx/grapevine"],
-  ["TX","Forney",31532,97000,"South","DFW Metroplex","tx/forney"],
-  ["TX","North Richland Hills",70780,76000,"South","DFW Metroplex","tx/north_richland_hills"],
-  ["TX","Burleson",52918,80000,"South","DFW Metroplex","tx/burleson"],
-  ["TX","Little Elm",54820,95000,"South","DFW Metroplex","tx/little_elm"],
-  ["TX","Kyle",56823,88000,"South","Austin Metro","tx/kyle"],
-  ["TX","Hutto",35483,87000,"South","Austin Metro","tx/hutto"],
-  ["TX","Schertz",44050,85000,"South","San Antonio Metro","tx/schertz"],
-  ["TX","Waxahachie",45347,76000,"South","DFW Metroplex","tx/waxahachie"],
-  ["TX","Midlothian",39356,98000,"South","DFW Metroplex","tx/midlothian"],
-  ["GA","Woodstock",37381,91000,"South","Atlanta Metro","ga/woodstock"],
-  ["GA","Peachtree City",39576,107000,"South","Atlanta Metro","ga/peachtree_city"],
-  ["GA","Peachtree Corners",42373,95000,"South","Atlanta Metro","ga/peachtree_corners"],
-  ["GA","Newnan",44235,77000,"South","Atlanta Metro","ga/newnan"],
-  ["GA","Evans",36998,94000,"South","CSRA",null],
-  ["GA","Canton",35741,79000,"South","Atlanta Metro","ga/canton"],
-  ["MN","Edina",49000,106000,"Midwest","Twin Cities","mn/edina"],
-  ["MN","Eden Prairie",64000,100000,"Midwest","Twin Cities","mn/eden_prairie"],
-  ["MN","Plymouth",81000,103000,"Midwest","Twin Cities","mn/plymouth"],
-  ["MN","Minnetonka",51000,103000,"Midwest","Twin Cities","mn/minnetonka"],
-  ["MN","Eagan",68000,90000,"Midwest","Twin Cities","mn/eagan"],
-  ["MN","Shakopee",41000,91000,"Midwest","Twin Cities","mn/shakopee"],
-  ["MN","Andover",34000,107000,"Midwest","Twin Cities","mn/andover"],
-  ["MN","Inver Grove Heights",34000,87000,"Midwest","Twin Cities","mn/inver_grove_heights"],
-  ["MN","Cottage Grove",37000,90000,"Midwest","Twin Cities","mn/cottage_grove"],
-  ["WI","Brookfield",38000,98000,"Midwest","SE Wisconsin","wi/brookfield"],
-  ["WI","Menomonee Falls",38000,87000,"Midwest","SE Wisconsin","wi/menomonee_falls"],
-  ["WI","New Berlin",40000,95000,"Midwest","SE Wisconsin","wi/new_berlin"],
-  ["WI","Wauwatosa",47000,82000,"Midwest","SE Wisconsin","wi/wauwatosa"],
-  ["WI","Franklin",36000,90000,"Midwest","SE Wisconsin","wi/franklin"],
-  ["ID","Meridian",130138,87000,"West","SW Idaho","id/meridian"],
-  ["ID","Eagle",31000,103000,"West","SW Idaho","id/eagle"],
-  ["ID","Boise City",237242,78000,"West","SW Idaho","id/boise_city"],
-  ["UT","Sandy",94291,90000,"West","Wasatch Front","ut/sandy"],
-  ["UT","Lehi",85173,95000,"West","Utah Valley","ut/lehi"],
-  ["UT","Herriman",59346,98000,"West","Wasatch Front","ut/herriman"],
-  ["UT","Saratoga Springs",48425,96000,"West","Utah Valley","ut/saratoga_springs"],
-  ["UT","Eagle Mountain",53290,93000,"West","Utah Valley","ut/eagle_mountain"],
-  ["UT","Cottonwood Heights",32828,95000,"West","Wasatch Front","ut/cottonwood_heights"],
-  ["UT","Kaysville",33053,100000,"West","N. Wasatch Front","ut/kaysville"],
-  ["UT","Holladay",31099,102000,"West","Wasatch Front","ut/holladay"],
-  ["UT","Syracuse",35488,93000,"West","N. Wasatch Front","ut/syracuse"],
-  ["WA","Marysville",66000,85000,"West","Puget Sound","wa/marysville"],
-  ["WA","Renton",106000,82000,"West","Puget Sound","wa/renton"],
-  ["WA","Lake Stevens",37000,95000,"West","Puget Sound","wa/lake_stevens"],
-  ["WA","Richland",57000,85000,"West","Tri-Cities","wa/richland"],
-  ["WA","South Hill",65000,85000,"West","Puget Sound",null],
-  ["MA","Newton",89000,130000,"Northeast","Greater Boston","ma/newton"],
-  ["MA","Cambridge",118000,105000,"Northeast","Greater Boston","ma/cambridge"],
-  ["MA","Framingham",72000,90000,"Northeast","Greater Boston","ma/framingham"],
-  ["MA","Waltham",62000,97000,"Northeast","Greater Boston","ma/waltham"],
-  ["MA","Weymouth",58000,90000,"Northeast","Greater Boston","ma/weymouth"],
-  ["MA","Woburn",40000,93000,"Northeast","Greater Boston","ma/woburn"],
-  ["MA","Marlborough",38000,98000,"Northeast","Greater Boston","ma/marlborough"],
-  ["MA","Braintree",38000,96000,"Northeast","Greater Boston","ma/braintree"],
-  ["NJ","Edison",107000,95000,"Northeast","Central NJ","nj/edison"],
-  ["NJ","Toms River",91000,88000,"Northeast","Central NJ","nj/toms_river_township"],
-  ["NJ","Cherry Hill Township",71000,90000,"Northeast","S. New Jersey","nj/cherry_hill_township"],
-  ["NJ","Hoboken",50000,115000,"Northeast","NE New Jersey","nj/hoboken"],
-  ["NJ","Montclair",38000,110000,"Northeast","NE New Jersey","nj/montclair"],
-  ["NJ","Middletown Township",66000,100000,"Northeast","Central NJ","nj/middletown_township"],
-  ["NJ","Parsippany-Troy Hills",53000,97000,"Northeast","N. New Jersey","nj/parsippany-troy_hills"],
-  ["MD","Frederick",74000,88000,"Northeast","W. Maryland","md/frederick"],
-  ["MD","Gaithersburg",68000,86000,"Northeast","DC Metro","md/gaithersburg"],
-  ["MD","Rockville",67000,97000,"Northeast","DC Metro","md/rockville"],
-  ["MD","Bowie",57000,103000,"Northeast","DC Metro","md/bowie"],
-  ["MD","Columbia",103000,107000,"Northeast","DC Metro",null],
-  ["MD","Ellicott City",74000,128000,"Northeast","Baltimore Metro",null],
-  ["MD","Waldorf",78000,93000,"Northeast","DC Metro",null],
-  ["MD","Germantown",86000,93000,"Northeast","DC Metro",null],
+// ── CITY DATA ──────────────────────────────────────────────────────────────
+const CITIES=[
+["TX","Southlake",31137,200000,"South","DFW Metroplex","tx/southlake"],
+["VA","McLean",49627,200000,"South","Northern VA",null],
+["MD","Potomac",45000,200000,"Northeast","DC Metro",null],
+["TN","Brentwood",45556,163000,"South","Middle TN","tn/brentwood"],
+["WA","Sammamish",66000,155000,"West","Puget Sound","wa/sammamish"],
+["CT","Greenwich",63000,150000,"Northeast","SW Connecticut","ct/greenwich"],
+["MD","Bethesda",62000,145000,"Northeast","DC Metro",null],
+["GA","Milton",41546,142000,"South","Atlanta Metro","ga/milton"],
+["WA","Redmond",67000,140000,"West","Puget Sound","wa/redmond"],
+["KS","Leawood",33809,139000,"Midwest","KC Metro","ks/leawood"],
+["TX","Frisco",219304,119000,"South","DFW Metroplex","tx/frisco"],
+["TX","Keller",45976,121000,"South","DFW Metroplex","tx/keller"],
+["IN","Zionsville",32000,124000,"Midwest","Indy Metro","in/zionsville"],
+["IN","Carmel",99000,115000,"Midwest","Indy Metro","in/carmel"],
+["IN","Fishers",97000,108000,"Midwest","Indy Metro","in/fishers"],
+["TX","Celina",34268,115000,"South","DFW Metroplex","tx/celina"],
+["TX","Flower Mound",78389,128000,"South","DFW Metroplex","tx/flower_mound"],
+["NC","Holly Springs",45248,115000,"South","Triangle","nc/holly_springs"],
+["NC","Apex",70630,110000,"South","Triangle","nc/apex"],
+["NC","Cary",179306,113000,"South","Triangle","nc/cary"],
+["GA","Johns Creek",81988,126000,"South","Atlanta Metro","ga/johns_creek"],
+["GA","Alpharetta",66855,115000,"South","Atlanta Metro","ga/alpharetta"],
+["GA","Dunwoody",51758,107000,"South","Atlanta Metro","ga/dunwoody"],
+["SC","Mount Pleasant",93993,108000,"South","Lowcountry","sc/mount_pleasant"],
+["SC","Fort Mill",30775,93000,"South","Charlotte Metro","sc/fort_mill"],
+["TN","Franklin",87133,111000,"South","Middle TN","tn/franklin"],
+["TN","Germantown",40673,122000,"South","W. Tennessee","tn/germantown"],
+["TN","Collierville",51515,109000,"South","W. Tennessee","tn/collierville"],
+["TN","Spring Hill",55765,93000,"South","Middle TN","tn/spring_hill"],
+["CO","Parker",61783,111000,"West","Denver Metro","co/parker"],
+["CO","Castle Rock",79123,107000,"West","Denver Metro","co/castle_rock"],
+["CO","Centennial",108201,110000,"West","Denver Metro","co/centennial"],
+["CO","Highlands Ranch",102257,120000,"West","Denver Metro",null],
+["CO","Erie",33808,117000,"West","N. Colorado","co/erie"],
+["UT","Draper",50278,113000,"West","Wasatch Front","ut/draper"],
+["UT","Lehi",85173,95000,"West","Utah Valley","ut/lehi"],
+["UT","South Jordan",82686,100000,"West","Wasatch Front","ut/south_jordan"],
+["AZ","Gilbert",280262,100000,"West","Phoenix Metro","az/gilbert"],
+["AZ","Scottsdale",243821,102000,"West","Phoenix Metro","az/scottsdale"],
+["AZ","Queen Creek",71867,103000,"West","Phoenix Metro","az/queen_creek"],
+["AZ","Chandler",280136,93000,"West","Phoenix Metro","az/chandler"],
+["AZ","Goodyear",107645,92000,"West","Phoenix Metro","az/goodyear"],
+["AR","Bentonville",58249,113000,"South","NW Arkansas","ar/bentonville"],
+["IL","Naperville",149000,107000,"Midwest","Chicago Metro","il/naperville"],
+["MI","Troy",84000,100000,"Midwest","Detroit Metro","mi/troy"],
+["MI","Novi",59000,100000,"Midwest","Detroit Metro","mi/novi"],
+["OH","Dublin",46000,109000,"Midwest","Columbus Metro","oh/dublin"],
+["OH","Mason",32000,100000,"Midwest","SW Ohio","oh/mason"],
+["KS","Overland Park",200306,98000,"Midwest","KC Metro","ks/overland_park"],
+["KS","Olathe",145057,90000,"Midwest","KC Metro","ks/olathe"],
+["KS","Shawnee",68542,90000,"Midwest","KC Metro","ks/shawnee"],
+["MO","Chesterfield",48000,109000,"Midwest","St. Louis Metro","mo/chesterfield"],
+["MO","Wildwood",36000,142000,"Midwest","St. Louis Metro","mo/wildwood"],
+["MO","O'Fallon",72458,98000,"Midwest","St. Louis Metro","mo/o_fallon"],
+["MN","Woodbury",72000,107000,"Midwest","Twin Cities","mn/woodbury"],
+["MN","Edina",49000,106000,"Midwest","Twin Cities","mn/edina"],
+["MN","Eden Prairie",64000,100000,"Midwest","Twin Cities","mn/eden_prairie"],
+["MN","Plymouth",81000,103000,"Midwest","Twin Cities","mn/plymouth"],
+["MN","Maple Grove",70000,101000,"Midwest","Twin Cities","mn/maple_grove"],
+["WI","Brookfield",38000,98000,"Midwest","SE Wisconsin","wi/brookfield"],
+["ID","Meridian",130138,87000,"West","SW Idaho","id/meridian"],
+["ID","Eagle",31000,103000,"West","SW Idaho","id/eagle"],
+["WA","Kirkland",91000,110000,"West","Puget Sound","wa/kirkland"],
+["WA","Bothell",50000,107000,"West","Puget Sound","wa/bothell"],
+["OR","Lake Oswego",39000,112000,"West","Portland Metro","or/lake_oswego"],
+["FL","Weston",68837,107000,"South","SE Florida","fl/weston"],
+["FL","Wellington",62146,93000,"South","Palm Beach","fl/wellington"],
+["FL","Palm Beach Gardens",60959,96000,"South","Palm Beach","fl/palm_beach_gardens"],
+["NC","Cornelius",32783,103000,"South","Charlotte Metro","nc/cornelius"],
+["NC","Huntersville",63969,93000,"South","Charlotte Metro","nc/huntersville"],
+["NC","Wake Forest",52844,99000,"South","Triangle","nc/wake_forest"],
+["TX","McKinney",210600,101000,"South","DFW Metroplex","tx/mckinney"],
+["TX","Allen",110265,110000,"South","DFW Metroplex","tx/allen"],
+["TX","Sugar Land",110016,109000,"South","Houston Metro","tx/sugar_land"],
+["TX","Round Rock",127786,95000,"South","Austin Metro","tx/round_rock"],
+["TX","Pearland",127514,95000,"South","Houston Metro","tx/pearland"],
+["TX","Georgetown",85999,90000,"South","Austin Metro","tx/georgetown"],
+["TX","Cedar Park",78301,102000,"South","Austin Metro","tx/cedar_park"],
+["TX","Leander",74067,99000,"South","Austin Metro","tx/leander"],
+["TX","Midlothian",39356,98000,"South","DFW Metroplex","tx/midlothian"],
+["TX","Mansfield",77510,103000,"South","DFW Metroplex","tx/mansfield"],
+["OK","Edmond",96825,94000,"South","OKC Metro","ok/edmond"],
+["OK","Bixby",30155,103000,"South","Tulsa Metro","ok/bixby"],
+["VA","Virginia Beach",456349,86000,"South","Hampton Roads","va/virginia_beach"],
+["VA","Chesapeake",252583,95000,"South","Hampton Roads","va/chesapeake"],
+["VA","Leesburg",49171,120000,"South","Northern VA","va/leesburg"],
+["NV","Henderson",340000,82000,"West","Las Vegas Metro","nv/henderson"],
+["MD","Rockville",67000,97000,"Northeast","DC Metro","md/rockville"],
+["MD","Bowie",57000,103000,"Northeast","DC Metro","md/bowie"],
+["MD","Frederick",74000,88000,"Northeast","W. Maryland","md/frederick"],
+["MA","Newton",89000,130000,"Northeast","Greater Boston","ma/newton"],
+["NJ","Edison",107000,95000,"Northeast","Central NJ","nj/edison"],
+["NJ","Cherry Hill Township",71000,90000,"Northeast","S. New Jersey","nj/cherry_hill_township"],
+["GA","Woodstock",37381,91000,"South","Atlanta Metro","ga/woodstock"],
+["GA","Peachtree City",39576,107000,"South","Atlanta Metro","ga/peachtree_city"],
+["GA","Sandy Springs",107087,103000,"South","Atlanta Metro","ga/sandy_springs"],
+["SC","Bluffton",33157,88000,"South","Lowcountry","sc/bluffton"],
 ];
 
-const SCORING_CRITERIA = [
-  {name:"Household Income (Median)", desc:"$50K–$75K = 1 pt · >$75K = 2 pts", max:"2 pts"},
-  {name:"Competition", desc:"0–1 tunnel/express wash within 1 mi = 1 pt · 0 washes = 2 pts (self-serve & in-bay don't count)", max:"2 pts"},
-  {name:"AADT — Annual Avg Daily Traffic", desc:"13K–15K = 1 pt · 15K–25K+ = 2 pts", max:"2 pts"},
-  {name:"Parcel Size", desc:"0.5–0.75 ac = 1 pt · 0.75–1.0 ac = 2 pts · >1.0 ac or <0.5 ac = 0 pts (ineligible)", max:"2 pts"},
-  {name:"Price (total, not per acre)", desc:"$0–$500K = 2 pts · $500K–$1M = 1 pt · >$1M = 0 pts", max:"2 pts"},
-  {name:"Going-Home Side of Traffic Flow", desc:"On the right side for evening commuters (if verifiable) = 1 pt", max:"1 pt"},
-  {name:"Multifamily Adjacent", desc:"Apartments / condos directly adjacent or across the street = 1 pt", max:"1 pt"},
-  {name:"Speed Limit", desc:"25–35 mph = 1 pt · >35 mph = 0 pts", max:"1 pt"},
-  {name:"Retail Adjacent", desc:"Walmart, Target, grocery anchor visible from site = 1 pt", max:"1 pt"},
-  {name:"Frontage > 100 ft", desc:"Road frontage over 100 ft = 1 pt · Under 100 ft = 0 pts", max:"1 pt"},
+const SCORING=[
+  {n:"Household Income",d:"$50K–$75K = 1 pt · >$75K = 2 pts",m:"2 pts"},
+  {n:"Competition",d:"0–1 tunnel wash within 1 mi = 1 pt · 0 washes = 2 pts",m:"2 pts"},
+  {n:"AADT Traffic",d:"13K–15K = 1 pt · 15K–25K+ = 2 pts",m:"2 pts"},
+  {n:"Parcel Size",d:"0.5–0.75 ac = 1 pt · 0.75–1.0 ac = 2 pts",m:"2 pts"},
+  {n:"Price (total)",d:"$0–$500K = 2 pts · $500K–$1M = 1 pt · >$1M = 0 pts",m:"2 pts"},
+  {n:"Going-Home Side",d:"On evening commute side of arterial = 1 pt",m:"1 pt"},
+  {n:"Multifamily Adjacent",d:"Apartments/condos directly adjacent = 1 pt",m:"1 pt"},
+  {n:"Speed Limit",d:"25–35 mph = 1 pt · >35 mph = 0 pts",m:"1 pt"},
+  {n:"Retail Adjacent",d:"Walmart/Target/grocery anchor visible = 1 pt",m:"1 pt"},
+  {n:"Frontage > 100 ft",d:"Road frontage over 100 ft = 1 pt",m:"1 pt"},
 ];
 
-const CRIT_KEYS = ["income","competition","aadt","size","price","goingHome","multifamily","speedLimit","retail","frontage"];
-const CRIT_LABELS = ["Income","Competition","AADT","Parcel size","Price","Going-home","Multifamily","Speed limit","Retail adj.","Frontage"];
-const CRIT_MAX = [2,2,2,2,2,1,1,1,1,1];
+const CKEYS=["income","competition","aadt","size","price","goingHome","multifamily","speedLimit","retail","frontage"];
+const CLABELS=["Income","Competition","AADT","Parcel size","Price","Going-home","Multifamily","Speed limit","Retail adj.","Frontage"];
+const CMAX=[2,2,2,2,2,1,1,1,1,1];
 
-// ═══════════════════════════════════════════
-//  STATE
-// ═══════════════════════════════════════════
-let saved = JSON.parse(localStorage.getItem('washsite_saved') || '[]');
-let currentResults = [];
-let cityFilterMode = 'all';
-let citySort = {col:'score', dir:-1};
+// ── STATE ─────────────────────────────────────────────────────────────────
+let saved = JSON.parse(localStorage.getItem('ws_saved')||'[]');
+let current = [];
+let cfMode = 'all';
+let cSort = {col:'score', dir:-1};
 
-function persist() {
-  localStorage.setItem('washsite_saved', JSON.stringify(saved));
-  updateBadges();
-}
+function persist() { localStorage.setItem('ws_saved', JSON.stringify(saved)); badges(); }
 
-function updateBadges() {
-  document.getElementById('saveBadge').textContent = saved.length;
+function badges() {
+  document.getElementById('nbadge').textContent = saved.length;
   document.getElementById('dSaved').textContent = saved.length;
-  document.getElementById('dStrong').textContent = saved.filter(p => p.totalScore >= 11).length;
-  const cities = new Set(saved.map(p => p.city + p.state));
-  document.getElementById('dCities').textContent = cities.size;
-  const top = saved.length ? Math.max(...saved.map(p => p.totalScore)) : null;
-  document.getElementById('dTop').textContent = top ? top + '/15' : '—';
+  document.getElementById('dStrong').textContent = saved.filter(p=>p.totalScore>=11).length;
+  document.getElementById('dCities').textContent = new Set(saved.map(p=>p.city+p.state)).size;
+  const t = saved.length ? Math.max(...saved.map(p=>p.totalScore)) : null;
+  document.getElementById('dTop').textContent = t ? t+'/15' : '—';
 }
 
-// ═══════════════════════════════════════════
-//  NAV
-// ═══════════════════════════════════════════
-const PAGE_TITLES = {
-  dashboard: 'Dashboard',
-  search: 'Parcel Search',
-  saved: 'Saved Candidates',
-  cities: 'City Database',
-  scoring: 'Scoring Guide'
+// ── NAV ───────────────────────────────────────────────────────────────────
+const TITLES={dashboard:'Dashboard',search:'Parcel Search',saved:'Saved Candidates',cities:'City Database',scoring:'Scoring Guide'};
+
+function go(id, el) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  document.getElementById('pg-'+id).classList.add('on');
+  document.getElementById('ni-'+id).classList.add('on');
+  document.getElementById('ptitle').textContent = TITLES[id]||id;
+  if (id==='saved') renderSaved();
+  if (id==='cities') renderCities();
+  if (id==='scoring') renderScoring();
+  if (id==='dashboard') renderDash();
+}
+
+// ── LOAD RESULTS (called by Claude) ───────────────────────────────────────
+window.loadResults = function(data) {
+  current = (data.listings||[]).sort((a,b)=>b.totalScore-a.totalScore);
+  const pass = current.filter(l=>l.pillars&&l.pillars.allPass).length;
+  const strong = current.filter(l=>l.totalScore>=11).length;
+  document.getElementById('rtitle').textContent = current.length+' parcels — '+data.city+', '+data.state;
+  document.getElementById('rsub').textContent = pass+' pass all pillars · '+strong+' strong (≥11 pts) · MHI $'+(data.cityMHI?Number(data.cityMHI).toLocaleString():'—')+' · Pop '+(data.cityPop?Number(data.cityPop).toLocaleString():'—');
+  document.getElementById('sbar').textContent = data.searchNote||'Scan complete — '+current.length+' parcels scored.';
+  document.getElementById('resultsWrap').style.display = 'block';
+  go('search', null);
+  document.getElementById('ni-search').classList.add('on');
+  applySort();
 };
 
-function nav(id, el) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('pg-' + id).classList.add('active');
-  if (el) el.classList.add('active');
-  document.getElementById('pageHeading').textContent = PAGE_TITLES[id] || id;
-  if (id === 'saved') renderSaved();
-  if (id === 'cities') renderCities();
-  if (id === 'scoring') renderScoring();
-  if (id === 'dashboard') renderDash();
-}
+// ── SEARCH ────────────────────────────────────────────────────────────────
+const SYS = `You are a commercial real estate analyst specializing in tunnel express car wash site selection. Search for and score active vacant commercial land listings in the specified city using web search tools. Return ONLY valid JSON (no markdown). Required pillars: Pop>=30000, 0-1 tunnel wash within 1mi, AADT>=13000, 0.5-1.0ac, by-right zoning, MHI>=50000. Scoring: income(0-2), competition(0-2), aadt(0-2), size(0-2), price(0-2), goingHome(0-1), multifamily(0-1), speedLimit(0-1), retail(0-1), frontage(0-1). JSON format: {"city":"","state":"","cityMHI":0,"cityPop":0,"searchNote":"","listings":[{"address":"","city":"","state":"","acres":0,"price":null,"zoning":"","apn":null,"listingUrl":null,"mapUrl":"","zoningUrl":null,"pillars":{"allPass":false,"fails":[]},"scores":{"income":0,"competition":0,"aadt":0,"size":0,"price":0,"goingHome":0,"multifamily":0,"speedLimit":0,"retail":0,"frontage":0},"totalScore":0,"unverified":[],"notes":""}]}`;
 
-// ═══════════════════════════════════════════
-//  API KEY
-// ═══════════════════════════════════════════
- else {
-    dot.className = 'status-dot';
-    txt.textContent = 'Enter key to enable live search';
-  }
-}
-
-
-// ═══════════════════════════════════════════
-//  DASHBOARD
-// ═══════════════════════════════════════════
-function renderDash() {
-  updateBadges();
-  const grid = document.getElementById('dashCands');
-  if (!saved.length) {
-    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--mist);font-size:13px">No candidates saved yet. Run a scan and save promising parcels.</div>';
-    return;
-  }
-  const top9 = [...saved].sort((a,b) => b.totalScore - a.totalScore).slice(0, 9);
-  grid.innerHTML = top9.map(l => {
-    const pct = Math.round((l.totalScore / 15) * 100);
-    const sc = l.totalScore >= 11 ? 'sp-strong' : l.totalScore >= 7 ? 'sp-likely' : 'sp-review';
-    const bc = l.totalScore >= 11 ? '#059669' : l.totalScore >= 7 ? '#1d4ed8' : '#475569';
-    return `<div class="cand-card" onclick="goToSearch('${l.city}','${l.state}')">
-      <div class="cand-top">
-        <div>
-          <div class="cand-name">${l.address || 'Unnamed parcel'}</div>
-          <div class="cand-meta">${l.city}, ${l.state} · ${l.acres || '?'} ac · ${l.price ? '$' + Number(l.price).toLocaleString() : 'Price TBD'}</div>
-        </div>
-        <span class="score-pill ${sc}" style="font-size:11px;padding:3px 10px">${l.totalScore}/15</span>
-      </div>
-      <div class="cand-bar"><div class="cand-fill" style="width:${pct}%;background:${bc}"></div></div>
-    </div>`;
-  }).join('');
-}
-
-function qScan(city, state) {
-  document.getElementById('dCity').value = city;
-  document.getElementById('dState').value = state;
-  scanFromDash();
-}
-
-function scanFromDash() {
-  const city = document.getElementById('dCity').value.trim();
-  const state = document.getElementById('dState').value.trim();
-  if (!city || !state) { alert('Please enter a city and state.'); return; }
-  document.getElementById('sCity').value = city;
-  document.getElementById('sState').value = state;
-  document.getElementById('sPrice').value = document.getElementById('dPrice').value;
-  document.getElementById('sAcres').value = document.getElementById('dAcres').value;
-  nav('search', document.querySelectorAll('.nav-item')[1]);
-  setTimeout(runSearch, 80);
-}
-
-function goToSearch(city, state) {
-  document.getElementById('sCity').value = city;
-  document.getElementById('sState').value = state;
-  nav('search', document.querySelectorAll('.nav-item')[1]);
-}
-
-// ═══════════════════════════════════════════
-//  SEARCH
-// ═══════════════════════════════════════════
-const SYS = `You are a commercial real estate analyst specializing in tunnel express car wash site selection.
-
-TASK: Search for and score active vacant commercial land listings in the specified city using web search tools.
-
-REQUIRED PILLARS — all must pass:
-1. Population ≥ 30,000 (city/town only)
-2. Competition: 0–1 tunnel or express car wash within 1-mile radius (self-serve/in-bay do NOT count)
-3. AADT ≥ 13,000 on a true arterial road
-4. Parcel size: 0.5–1.0 acres strictly
-5. Zoning: permitted by-right (no SUP, no rezoning required)
-6. Median Household Income ≥ $50,000
-
-SCORING SYSTEM (max 15 pts):
-- income: $50K–$75K=1pt, >$75K=2pts
-- competition: 0–1 tunnel wash within 1mi=1pt, 0 tunnel washes=2pts
-- aadt: 13K–15K=1pt, 15K–25K+=2pts
-- size: 0.5–0.75ac=1pt, 0.75–1.0ac=2pts
-- price: $0–$500K=2pts, $500K–$1M=1pt, >$1M=0pts
-- goingHome: on going-home (evening commute) side of arterial=1pt
-- multifamily: apartments or condos directly adjacent=1pt
-- speedLimit: 25–35mph=1pt, >35mph=0pts
-- retail: Walmart/Target/grocery anchor visible from site=1pt
-- frontage: >100ft road frontage=1pt
-
-INSTRUCTIONS:
-- Search LoopNet, Crexi, LandWatch, Land.com, Redfin commercial, and county assessor data for actual active listings
-- For each parcel, research: road AADT from state DOT website, nearby tunnel/express car washes from Google Maps, zoning classification from city code
-- Be honest — mark unverifiable criteria in the "unverified" array
-- Find 3–8 actual listings when possible
-
-Return ONLY valid JSON with NO markdown fences, NO preamble:
-{
-  "city": string,
-  "state": string,
-  "cityMHI": number,
-  "cityPop": number,
-  "searchNote": string,
-  "listings": [
-    {
-      "address": string,
-      "city": string,
-      "state": string,
-      "acres": number,
-      "price": number or null,
-      "zoning": string,
-      "apn": string or null,
-      "listingUrl": string or null,
-      "mapUrl": string,
-      "zoningUrl": string or null,
-      "pillars": { "allPass": boolean, "fails": [string] },
-      "scores": {
-        "income": 0|1|2, "competition": 0|1|2, "aadt": 0|1|2,
-        "size": 0|1|2, "price": 0|1|2, "goingHome": 0|1,
-        "multifamily": 0|1, "speedLimit": 0|1, "retail": 0|1, "frontage": 0|1
-      },
-      "totalScore": number,
-      "unverified": [string],
-      "notes": string
-    }
-  ]
-}`;
-
-function setStatus(msg, loading = false) {
-  document.getElementById('statusBar').innerHTML = loading
-    ? `<div class="spinner"></div>${msg}`
-    : msg;
+function setStatus(msg, loading) {
+  document.getElementById('sbar').innerHTML = loading ? '<div class="spin"></div>'+msg : msg;
 }
 
 async function runSearch() {
   const city = document.getElementById('sCity').value.trim();
   const state = document.getElementById('sState').value.trim().toUpperCase();
   const maxPrice = document.getElementById('sPrice').value;
-  const minAcres = document.getElementById('sAcres').value;
 
-  if (!city || !state) { setStatus('Please enter a city and state.'); return; }
+  if (!city||!state) { setStatus('Please enter a city and state.'); return; }
 
   document.getElementById('runBtn').disabled = true;
-  document.getElementById('resultsSection').style.display = 'none';
-  const priceLabel = maxPrice === '0' ? 'any price' : 'under $' + Number(maxPrice).toLocaleString();
-  setStatus(`Searching ${city}, ${state} for commercial land (${minAcres}–1.0 ac, ${priceLabel})…`, true);
+  document.getElementById('resultsWrap').style.display = 'none';
+  setStatus('Searching '+city+', '+state+' for commercial land listings…', true);
 
-  const userMsg = `Find active vacant commercial land listings in ${city}, ${state} that are between ${minAcres} and 1.0 acres${maxPrice !== '0' ? ` and priced under $${Number(maxPrice).toLocaleString()}` : ''}. Use web search to find real current listings suitable for a tunnel express car wash. Research each parcel's AADT, zoning, and competition. Score every parcel. Return 3–8 results minimum.`;
+  const userMsg = 'Find active vacant commercial land listings in '+city+', '+state+' that are between 0.5 and 1.0 acres'+(maxPrice!=='0'?' and priced under $'+Number(maxPrice).toLocaleString():'')+'. Use web search to find real current listings suitable for a tunnel express car wash. Score every parcel. Return 3–8 results.';
 
   try {
     const resp = await fetch('/api/search', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: {'Content-Type':'application/json'},
       body: JSON.stringify({
         model: 'claude-opus-4-5',
         max_tokens: 4096,
         system: SYS,
-        messages: [{ role: 'user', content: userMsg }],
-        tools: [{ type: 'web_search_20250305', name: 'web_search' }]
+        messages: [{role:'user', content:userMsg}],
+        tools: [{type:'web_search_20250305', name:'web_search'}]
       })
     });
 
-    if (resp.status === 401) { setStatus('❌ Invalid API key. Check the key in the sidebar.'); return; }
-    if (resp.status === 429) { setStatus('⏳ Rate limited. Wait a moment and try again.'); return; }
-    if (!resp.ok) { setStatus(`❌ API error ${resp.status}. Try again.`); return; }
+    if (!resp.ok) {
+      const err = await resp.json().catch(()=>({}));
+      throw new Error('API error '+resp.status+': '+(err.error?.message||resp.statusText));
+    }
 
     const data = await resp.json();
     if (data.error) throw new Error(data.error.message);
 
-    const text = data.content.filter(b => b.type === 'text').map(b => b.text).join('\n');
-    let parsed;
-    try {
-      const clean = text.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
-      const m = clean.match(/\{[\s\S]*\}/);
-      if (m) parsed = JSON.parse(m[0]);
-      else throw new Error('No JSON object found');
-    } catch (e) {
-      throw new Error('Could not parse response: ' + e.message + '\n\nRaw: ' + text.substring(0, 200));
-    }
+    const text = data.content.filter(b=>b.type==='text').map(b=>b.text).join('\n');
+    const clean = text.replace(/```json\s*/g,'').replace(/```\s*/g,'').trim();
+    const m = clean.match(/\{[\s\S]*\}/);
+    if (!m) throw new Error('No JSON in response');
+    const parsed = JSON.parse(m[0]);
 
-    currentResults = (parsed.listings || []).sort((a, b) => b.totalScore - a.totalScore);
-
-    const pass = currentResults.filter(l => l.pillars?.allPass).length;
-    const strong = currentResults.filter(l => l.totalScore >= 11).length;
-    document.getElementById('resultTitle').textContent =
-      `${currentResults.length} parcel${currentResults.length !== 1 ? 's' : ''} · ${city}, ${state}`;
-    document.getElementById('resultSub').textContent =
-      `${pass} pass all pillars · ${strong} strong (≥11 pts) · City MHI $${parsed.cityMHI ? Number(parsed.cityMHI).toLocaleString() : '—'} · Pop ${parsed.cityPop ? Number(parsed.cityPop).toLocaleString() : '—'}`;
-
-    setStatus(parsed.searchNote || `Scan complete — ${currentResults.length} parcels found and scored.`);
-    document.getElementById('resultsSection').style.display = 'block';
-    applySort();
-
-  } catch (e) {
-    setStatus('❌ Error: ' + e.message);
+    window.loadResults(parsed);
+  } catch(e) {
+    setStatus('Error: '+e.message);
   }
-
   document.getElementById('runBtn').disabled = false;
 }
 
 function applySort() {
-  const key = document.getElementById('sortSel').value;
-  let rows = [...currentResults];
-  rows.sort((a, b) => {
-    if (key === 'score') return b.totalScore - a.totalScore;
-    if (key === 'price') return (a.price || 9e9) - (b.price || 9e9);
-    if (key === 'acres') return (a.acres || 99) - (b.acres || 99);
-    if (key === 'pillars') {
-      const pa = a.pillars?.allPass ? 1 : 0, pb = b.pillars?.allPass ? 1 : 0;
-      return pb - pa || b.totalScore - a.totalScore;
-    }
+  const k = document.getElementById('sortSel').value;
+  let rows = [...current];
+  rows.sort((a,b)=>{
+    if(k==='score') return b.totalScore-a.totalScore;
+    if(k==='price') return (a.price||9e9)-(b.price||9e9);
+    if(k==='acres') return (a.acres||99)-(b.acres||99);
+    if(k==='pillars'){const pa=a.pillars&&a.pillars.allPass?1:0,pb=b.pillars&&b.pillars.allPass?1:0;return pb-pa||b.totalScore-a.totalScore;}
     return 0;
   });
-  renderCards(rows, 'resultCards', true);
+  renderCards(rows,'rcards',true);
 }
 
-function renderCards(rows, containerId, showSave = false) {
-  const el = document.getElementById(containerId);
-  if (!rows.length) {
-    el.innerHTML = '<div style="text-align:center;padding:50px;color:var(--mist)">No parcels found. Try adjusting filters or a different city.</div>';
-    return;
-  }
-  el.innerHTML = rows.map((l, idx) => {
-    const pct = Math.round((l.totalScore / 15) * 100);
-    const scClass = l.totalScore >= 11 ? 'sp-strong' : l.totalScore >= 7 ? 'sp-likely' : 'sp-review';
-    const barColor = l.totalScore >= 11 ? '#059669' : l.totalScore >= 7 ? '#1d4ed8' : '#475569';
-    const tier = l.totalScore >= 11 ? 'Strong candidate' : l.totalScore >= 7 ? 'Likely suitable' : 'Needs review';
-    const fails = l.pillars?.fails || [];
-    const isSaved = saved.some(s => s.address === l.address && s.city === l.city && s.state === l.state);
-
-    const crits = CRIT_KEYS.map((k, i) => {
-      const v = l.scores?.[k];
-      const m = CRIT_MAX[i];
-      let dc = 'cd-unkn', pt = '?';
-      if (v !== null && v !== undefined) {
-        pt = v + '/' + m;
-        dc = v === 0 ? 'cd-fail' : v < m ? 'cd-part' : 'cd-pass';
-      }
-      return `<div class="crit-item"><div class="crit-dot ${dc}"></div>${CRIT_LABELS[i]}<span class="crit-pts">${pt}</span></div>`;
+function renderCards(rows, id, showSave) {
+  const el = document.getElementById(id);
+  if (!rows.length) { el.innerHTML='<div style="text-align:center;padding:40px;color:var(--mist)">No parcels found.</div>'; return; }
+  el.innerHTML = rows.map((l,i)=>{
+    const pct = Math.round((l.totalScore/15)*100);
+    const sc = l.totalScore>=11?'sp-hi':l.totalScore>=7?'sp-mid':'sp-lo';
+    const bc = l.totalScore>=11?'#059669':l.totalScore>=7?'#1d4ed8':'#475569';
+    const tier = l.totalScore>=11?'Strong candidate':l.totalScore>=7?'Likely suitable':'Needs review';
+    const fails = (l.pillars&&l.pillars.fails)||[];
+    const isSv = saved.some(s=>s.address===l.address&&s.city===l.city&&s.state===l.state);
+    const origIdx = current.indexOf(l);
+    const btnId = 'sb-'+origIdx;
+    const crits = CKEYS.map((k,j)=>{
+      const v=l.scores&&l.scores[k]; const mx=CMAX[j];
+      let dc='cu',pt='?';
+      if(v!==null&&v!==undefined){pt=v+'/'+mx;dc=v===0?'cf':v<mx?'cw':'cp';}
+      return '<div class="ci"><div class="cdot '+dc+'"></div>'+CLABELS[j]+'<span class="ci-pt">'+pt+'</span></div>';
     }).join('');
-
-    const links = [
-      l.listingUrl ? `<a href="${l.listingUrl}" target="_blank">Listing ↗</a>` : '',
-      l.zoningUrl ? `<a href="${l.zoningUrl}" target="_blank">Zoning ↗</a>` : '',
-      l.mapUrl ? `<a href="${l.mapUrl}" target="_blank">Map ↗</a>` : '',
-      l.apn ? `<span style="color:var(--mist)">APN: ${l.apn}</span>` : '',
-    ].filter(Boolean).join(' &nbsp;·&nbsp; ');
-
-    const saveId = `save-${containerId}-${idx}`;
-    return `<div class="parcel-card ${l.pillars?.allPass ? 'pass-card' : 'fail-card'}">
-      <div class="pc-header">
-        <div style="flex:1;min-width:0">
-          <div class="pc-title">${l.address || 'Unnamed parcel'}${isSaved ? '<span class="saved-tag">saved</span>' : ''}</div>
-          <div class="pc-meta">${l.city}, ${l.state} &nbsp;·&nbsp; ${l.acres ? l.acres + ' ac' : 'acreage TBD'} &nbsp;·&nbsp; ${l.price ? '$' + Number(l.price).toLocaleString() : 'Price TBD'} &nbsp;·&nbsp; Zoning: ${l.zoning || 'TBD'}</div>
-          ${fails.length ? `<div class="pc-fail-tag">Pillar fail: ${fails.join(' | ')}</div>` : `<div class="pc-pass-tag">✓ All pillars pass</div>`}
-        </div>
-        <div class="pc-score-col">
-          <span class="score-pill ${scClass}">${l.totalScore}/15 · ${tier}</span>
-          ${showSave ? `<button class="btn btn-xs ${isSaved ? 'btn-ghost' : 'btn-primary'}" id="${saveId}" onclick="toggleSave(${idx}, '${saveId}')">${isSaved ? '✓ Saved' : '+ Save'}</button>` : `<button class="btn btn-xs btn-danger" onclick="unsave('${l.address}','${l.city}','${l.state}');renderSaved()">Remove</button>`}
-        </div>
-      </div>
-      <div class="pc-prog">
-        <div class="prog-labels"><span>${pct}% of max score</span><span>${tier}</span></div>
-        <div class="prog-track"><div class="prog-fill" style="width:${pct}%;background:${barColor}"></div></div>
-      </div>
-      <div class="crit-grid" style="margin-bottom:10px">${crits}</div>
-      ${links ? `<div class="pc-links">${links}</div>` : ''}
-      ${(l.unverified || []).length ? `<div class="unv-box">⚠ Unverified: ${l.unverified.join(' · ')}</div>` : ''}
-      ${l.notes ? `<div class="notes-box">${l.notes}</div>` : ''}
-    </div>`;
+    const links=[l.listingUrl?'<a href="'+l.listingUrl+'" target="_blank">Listing ↗</a>':'',l.zoningUrl?'<a href="'+l.zoningUrl+'" target="_blank">Zoning ↗</a>':'',l.mapUrl?'<a href="'+l.mapUrl+'" target="_blank">Map ↗</a>':''].filter(Boolean).join(' &nbsp;·&nbsp; ');
+    const saveBtn = showSave ? '<button class="btn btn-xs '+(isSv?'btn-g':'btn-p')+'" id="'+btnId+'" onclick="toggleSave('+origIdx+',\''+btnId+'\')">'+( isSv?'✓ Saved':'+ Save')+'</button>' : '<button class="btn btn-xs btn-d" onclick="unsave(\''+l.address+'\',\''+l.city+'\',\''+l.state+'\');renderSaved()">Remove</button>';
+    return '<div class="pc '+(l.pillars&&l.pillars.allPass?'pass':'fail')+'"><div class="pc-top"><div style="flex:1;min-width:0"><div class="pc-name">'+l.address+'</div><div class="pc-meta">'+l.city+', '+l.state+' &nbsp;·&nbsp; '+(l.acres?l.acres+' ac':'ac TBD')+' &nbsp;·&nbsp; '+(l.price?'$'+Number(l.price).toLocaleString():'Price TBD')+' &nbsp;·&nbsp; '+(l.zoning||'Zoning TBD')+'</div>'+( fails.length?'<div class="pc-tag pt-fail" style="margin-top:5px">✗ '+fails.join(' | ')+'</div>':'<div class="pc-tag pt-pass" style="margin-top:5px">✓ Pillars pass</div>')+'</div><div class="pc-right"><span class="sp '+sc+'">'+l.totalScore+'/15 · '+tier+'</span>'+saveBtn+'</div></div><div style="margin-bottom:10px"><div class="pb-lbl"><span>'+pct+'%</span><span>'+tier+'</span></div><div class="pb-tr"><div class="pb-fi" style="width:'+pct+'%;background:'+bc+'"></div></div></div><div class="cg" style="margin-bottom:9px">'+crits+'</div>'+(links?'<div class="pc-links">'+links+'</div>':'')+((l.unverified&&l.unverified.length)?'<div class="unv">⚠ Unverified: '+l.unverified.join(' · ')+'</div>':'')+(l.notes?'<div class="pnotes">'+l.notes+'</div>':'')+'</div>';
   }).join('');
 }
 
 function toggleSave(idx, btnId) {
-  const rows = [...currentResults].sort((a, b) => {
-    const k = document.getElementById('sortSel').value;
-    if (k === 'score') return b.totalScore - a.totalScore;
-    if (k === 'price') return (a.price || 9e9) - (b.price || 9e9);
-    if (k === 'acres') return a.acres - b.acres;
-    return 0;
-  });
-  const l = rows[idx];
+  const l = current[idx];
   if (!l) return;
-  const ei = saved.findIndex(s => s.address === l.address && s.city === l.city && s.state === l.state);
-  if (ei >= 0) {
-    saved.splice(ei, 1);
-    document.getElementById(btnId).textContent = '+ Save';
-    document.getElementById(btnId).className = 'btn btn-xs btn-primary';
-  } else {
-    saved.push(l);
-    document.getElementById(btnId).textContent = '✓ Saved';
-    document.getElementById(btnId).className = 'btn btn-xs btn-ghost';
-  }
+  const ei = saved.findIndex(s=>s.address===l.address&&s.city===l.city&&s.state===l.state);
+  const btn = document.getElementById(btnId);
+  if (ei>=0) { saved.splice(ei,1); if(btn){btn.textContent='+ Save';btn.className='btn btn-xs btn-p';} }
+  else { saved.push(l); if(btn){btn.textContent='✓ Saved';btn.className='btn btn-xs btn-g';} }
   persist();
 }
 
 function unsave(addr, city, state) {
-  saved = saved.filter(s => !(s.address === addr && s.city === city && s.state === state));
+  saved = saved.filter(s=>!(s.address===addr&&s.city===city&&s.state===state));
   persist();
 }
 
-// ═══════════════════════════════════════════
-//  SAVED PAGE
-// ═══════════════════════════════════════════
+// ── SAVED ─────────────────────────────────────────────────────────────────
 function renderSaved() {
-  const el = document.getElementById('savedContent');
+  const el = document.getElementById('savedWrap');
   if (!saved.length) {
-    el.innerHTML = `<div class="empty-state">
-      <div class="empty-icon">◉</div>
-      <div class="empty-title">No saved candidates</div>
-      <div class="empty-sub">Run a parcel scan and click "+ Save" on any parcel to track it here. Results persist between sessions.</div>
-    </div>`;
+    el.innerHTML='<div class="empty"><div class="empty-ic">◉</div><div class="empty-t">No saved candidates</div><div class="empty-s">Run a parcel scan and click "+ Save" to track parcels here.</div></div>';
     return;
   }
-  const sorted = [...saved].sort((a, b) => b.totalScore - a.totalScore);
+  const sorted = [...saved].sort((a,b)=>b.totalScore-a.totalScore);
   const byCity = {};
-  sorted.forEach(p => {
-    const k = `${p.city}, ${p.state}`;
-    if (!byCity[k]) byCity[k] = [];
-    byCity[k].push(p);
-  });
-  el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
-    <div class="section-head">Saved Candidates (${saved.length})</div>
-    <button class="btn btn-danger btn-sm" onclick="if(confirm('Clear all saved candidates?')){saved=[];persist();renderSaved();}">Clear all</button>
-  </div>` +
-  Object.entries(byCity).map(([cityKey, parcels]) => {
-    const tempId = 'cg-' + cityKey.replace(/[^a-z0-9]/gi, '_');
-    const html = parcels.map(l => {
-      const pct = Math.round((l.totalScore / 15) * 100);
-      const scClass = l.totalScore >= 11 ? 'sp-strong' : l.totalScore >= 7 ? 'sp-likely' : 'sp-review';
-      const barColor = l.totalScore >= 11 ? '#059669' : l.totalScore >= 7 ? '#1d4ed8' : '#475569';
-      const tier = l.totalScore >= 11 ? 'Strong' : l.totalScore >= 7 ? 'Likely' : 'Review';
-      const fails = l.pillars?.fails || [];
-      const crits = CRIT_KEYS.map((k, i) => {
-        const v = l.scores?.[k]; const m = CRIT_MAX[i];
-        let dc = 'cd-unkn', pt = '?';
-        if (v !== null && v !== undefined) { pt = v + '/' + m; dc = v === 0 ? 'cd-fail' : v < m ? 'cd-part' : 'cd-pass'; }
-        return `<div class="crit-item"><div class="crit-dot ${dc}"></div>${CRIT_LABELS[i]}<span class="crit-pts">${pt}</span></div>`;
+  sorted.forEach(p=>{ const k=p.city+', '+p.state; if(!byCity[k])byCity[k]=[]; byCity[k].push(p); });
+  el.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div class="sh" style="margin-bottom:0">Saved Candidates ('+saved.length+')</div><button class="btn btn-d btn-xs" onclick="if(confirm(\'Clear all?\'))saved=[],persist(),renderSaved()">Clear all</button></div>'+
+    Object.entries(byCity).map(([city,parcels])=>'<div style="margin-bottom:22px"><div class="cgh">'+city+' · '+parcels.length+' parcel'+(parcels.length>1?'s':'')+'</div>'+renderCards(parcels,'_tmp_'+city,false)+'</div>').join('');
+  // fix: renderCards returns nothing for saved, use inline render
+  el.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div class="sh" style="margin-bottom:0">Saved Candidates ('+saved.length+')</div><button class="btn btn-d btn-xs" onclick="if(confirm(\'Clear all?\'))saved=[],persist(),renderSaved()">Clear all</button></div>'+
+    Object.entries(byCity).map(([city,parcels])=>{
+      const html = parcels.map(l=>{
+        const pct=Math.round((l.totalScore/15)*100);
+        const sc=l.totalScore>=11?'sp-hi':l.totalScore>=7?'sp-mid':'sp-lo';
+        const bc=l.totalScore>=11?'#059669':l.totalScore>=7?'#1d4ed8':'#475569';
+        const tier=l.totalScore>=11?'Strong':l.totalScore>=7?'Likely':'Review';
+        const fails=(l.pillars&&l.pillars.fails)||[];
+        const crits=CKEYS.map((k,j)=>{const v=l.scores&&l.scores[k];const mx=CMAX[j];let dc='cu',pt='?';if(v!==null&&v!==undefined){pt=v+'/'+mx;dc=v===0?'cf':v<mx?'cw':'cp';}return '<div class="ci"><div class="cdot '+dc+'"></div>'+CLABELS[j]+'<span class="ci-pt">'+pt+'</span></div>';}).join('');
+        return '<div class="pc '+(l.pillars&&l.pillars.allPass?'pass':'fail')+'" style="margin-bottom:9px"><div class="pc-top"><div style="flex:1;min-width:0"><div class="pc-name">'+l.address+'</div><div class="pc-meta">'+l.acres+' ac · '+(l.price?'$'+Number(l.price).toLocaleString():'TBD')+'</div>'+(fails.length?'<div class="pc-tag pt-fail" style="margin-top:4px">✗ '+fails.join(' | ')+'</div>':'<div class="pc-tag pt-pass" style="margin-top:4px">✓ Pillars pass</div>')+'</div><div class="pc-right"><span class="sp '+sc+'">'+l.totalScore+'/15</span><button class="btn btn-xs btn-d" onclick="unsave(\''+l.address.replace(/'/g,"\\'")+ '\',\''+l.city+'\',\''+l.state+'\');renderSaved()">Remove</button></div></div><div style="margin-bottom:8px"><div class="pb-tr"><div class="pb-fi" style="width:'+pct+'%;background:'+bc+'"></div></div></div><div class="cg">'+crits+'</div>'+((l.unverified&&l.unverified.length)?'<div class="unv">⚠ '+l.unverified.join(' · ')+'</div>':'')+(l.notes?'<div class="pnotes">'+l.notes+'</div>':'')+'</div>';
       }).join('');
-      return `<div class="parcel-card ${l.pillars?.allPass ? 'pass-card' : 'fail-card'}" style="margin-bottom:10px">
-        <div class="pc-header">
-          <div style="flex:1;min-width:0">
-            <div class="pc-title">${l.address || 'Unnamed'}</div>
-            <div class="pc-meta">${l.acres || '?'} ac · ${l.price ? '$' + Number(l.price).toLocaleString() : 'Price TBD'} · ${l.zoning || 'Zoning TBD'}</div>
-            ${fails.length ? `<div class="pc-fail-tag">Fail: ${fails.join(' | ')}</div>` : `<div class="pc-pass-tag">✓ Pillars pass</div>`}
-          </div>
-          <div class="pc-score-col">
-            <span class="score-pill ${scClass}">${l.totalScore}/15 · ${tier}</span>
-            <button class="btn btn-xs btn-danger" onclick="unsave('${l.address}','${l.city}','${l.state}');renderSaved()">Remove</button>
-          </div>
-        </div>
-        <div class="pc-prog">
-          <div class="prog-labels"><span>${pct}%</span></div>
-          <div class="prog-track"><div class="prog-fill" style="width:${pct}%;background:${barColor}"></div></div>
-        </div>
-        <div class="crit-grid" style="margin-bottom:8px">${crits}</div>
-        ${(l.unverified || []).length ? `<div class="unv-box">⚠ Unverified: ${l.unverified.join(' · ')}</div>` : ''}
-        ${l.notes ? `<div class="notes-box">${l.notes}</div>` : ''}
-      </div>`;
+      return '<div style="margin-bottom:22px"><div class="cgh">'+city+' · '+parcels.length+' parcel'+(parcels.length>1?'s':'')+'</div>'+html+'</div>';
     }).join('');
-    return `<div style="margin-bottom:24px">
-      <div class="city-group-head">${cityKey} &nbsp;·&nbsp; ${parcels.length} parcel${parcels.length > 1 ? 's' : ''}</div>
-      ${html}
-    </div>`;
-  }).join('');
 }
 
-// ═══════════════════════════════════════════
-//  CITY DATABASE
-// ═══════════════════════════════════════════
-function cityScore(mhi) { return (mhi > 75000 ? 2 : 1) + 1; }
-
-function setCF(f, btn) {
-  cityFilterMode = f;
-  document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('on'));
-  btn.classList.add('on');
-  renderCities();
-}
-
-function sortCT(col) {
-  if (citySort.col === col) citySort.dir *= -1;
-  else { citySort.col = col; citySort.dir = -1; }
-  renderCities();
-}
+// ── CITY TABLE ────────────────────────────────────────────────────────────
+function cscore(mhi){ return (mhi>75000?2:1)+1; }
+function setCF(f,btn){ cfMode=f; document.querySelectorAll('.fchip').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); renderCities(); }
+function sortCT(col){ if(cSort.col===col)cSort.dir*=-1; else{cSort.col=col;cSort.dir=-1;} renderCities(); }
 
 function renderCities() {
-  const q = (document.getElementById('cityQ')?.value || '').toLowerCase();
+  const q = (document.getElementById('cityQ')||{value:''}).value.toLowerCase();
   const seen = new Set();
-  let rows = CITIES.filter(r => {
-    const k = r[0] + r[1];
-    if (seen.has(k)) return false;
-    seen.add(k);
-    return true;
+  let rows = CITIES.filter(r=>{ const k=r[0]+r[1]; if(seen.has(k))return false; seen.add(k); return true; });
+  if(cfMode==='3') rows=rows.filter(r=>cscore(r[3])===3);
+  else if(cfMode==='2') rows=rows.filter(r=>cscore(r[3])===2);
+  else if(['South','Midwest','West','Northeast'].includes(cfMode)) rows=rows.filter(r=>r[4]===cfMode);
+  if(q) rows=rows.filter(r=>r[1].toLowerCase().includes(q)||r[0].toLowerCase().includes(q)||r[5].toLowerCase().includes(q));
+  rows.sort((a,b)=>{
+    const {col,dir}=cSort; let va,vb;
+    if(col==='city'){va=a[1];vb=b[1];}else if(col==='state'){va=a[0];vb=b[0];}
+    else if(col==='pop'){va=a[2];vb=b[2];}else if(col==='mhi'){va=a[3];vb=b[3];}
+    else{va=cscore(a[3]);vb=cscore(b[3]);}
+    if(va<vb)return -dir; if(va>vb)return dir; return b[3]-a[3];
   });
-
-  if (cityFilterMode === '3') rows = rows.filter(r => cityScore(r[3]) === 3);
-  else if (cityFilterMode === '2') rows = rows.filter(r => cityScore(r[3]) === 2);
-  else if (cityFilterMode === '1') rows = rows.filter(r => cityScore(r[3]) === 1);
-  else if (['South','Midwest','West','Northeast'].includes(cityFilterMode))
-    rows = rows.filter(r => r[4] === cityFilterMode);
-
-  if (q) rows = rows.filter(r =>
-    r[1].toLowerCase().includes(q) ||
-    r[0].toLowerCase().includes(q) ||
-    r[5].toLowerCase().includes(q)
-  );
-
-  rows.sort((a, b) => {
-    const {col, dir} = citySort;
-    let va, vb;
-    if (col === 'city') { va = a[1]; vb = b[1]; }
-    else if (col === 'state') { va = a[0]; vb = b[0]; }
-    else if (col === 'pop') { va = a[2]; vb = b[2]; }
-    else if (col === 'mhi') { va = a[3]; vb = b[3]; }
-    else { va = cityScore(a[3]); vb = cityScore(b[3]); }
-    if (va < vb) return -dir;
-    if (va > vb) return dir;
-    return b[3] - a[3];
-  });
-
-  const countEl = document.getElementById('cityCountLabel');
-  if (countEl) countEl.textContent = rows.length + ' cities';
-
-  const tbody = document.getElementById('cityTbody');
-  if (!tbody) return;
-
-  tbody.innerHTML = rows.map(r => {
-    const s = cityScore(r[3]);
-    const sc = s === 3 ? 'sc-3' : s === 2 ? 'sc-2' : 'sc-1';
-    const zurl = r[6] ? `https://library.municode.com/${r[6]}` : null;
-    return `<tr>
-      <td><span class="city-name-cell">${r[1]}</span></td>
-      <td><span class="st-badge">${r[0]}</span></td>
-      <td><span class="mono-sm">${Number(r[2]).toLocaleString()}</span></td>
-      <td><span class="mono-sm">$${(r[3]/1000).toFixed(0)}K</span></td>
-      <td><span class="sc-badge ${sc}">${s} pts</span></td>
-      <td><span class="mono-sm">${r[5]}</span></td>
-      <td>${zurl ? `<a class="zoning-link" href="${zurl}" target="_blank">Municode ↗</a>` : `<span class="mono-sm" style="color:var(--slate)">County zoning</span>`}</td>
-      <td><button class="scan-action" onclick="scanCity('${r[1]}','${r[0]}')">Scan ↗</button></td>
-    </tr>`;
+  const cc = document.getElementById('cityCount');
+  if(cc) cc.textContent = rows.length+' cities';
+  const tbody = document.getElementById('ctbody');
+  if(!tbody) return;
+  tbody.innerHTML = rows.map(r=>{
+    const s=cscore(r[3]); const sc=s===3?'scb3':s===2?'scb2':'scb1';
+    const zu=r[6]?'https://library.municode.com/'+r[6]:null;
+    return '<tr><td><span class="cn">'+r[1]+'</span></td><td><span class="stb">'+r[0]+'</span></td><td><span style="font-family:var(--ff-mono);font-size:10px;color:var(--mist)">'+Number(r[2]).toLocaleString()+'</span></td><td><span style="font-family:var(--ff-mono);font-size:10px;color:var(--mist)">$'+(r[3]/1000).toFixed(0)+'K</span></td><td><span class="scb '+sc+'">'+s+' pts</span></td><td><span style="font-family:var(--ff-mono);font-size:10px;color:var(--mist)">'+r[5]+'</span></td><td>'+(zu?'<a class="zlink" href="'+zu+'" target="_blank">Municode ↗</a>':'<span style="font-family:var(--ff-mono);font-size:9px;color:var(--slate)">County zoning</span>')+'</td><td><button class="scan-btn-sm" onclick="scanCity(\''+r[1]+'\',\''+r[0]+'\')">Scan ↗</button></td></tr>';
   }).join('');
 }
 
 function scanCity(city, state) {
   document.getElementById('sCity').value = city;
   document.getElementById('sState').value = state;
-  nav('search', document.querySelectorAll('.nav-item')[1]);
+  go('search', null);
+  document.getElementById('ni-search').classList.add('on');
   setTimeout(runSearch, 120);
 }
 
-// ═══════════════════════════════════════════
-//  SCORING GUIDE
-// ═══════════════════════════════════════════
+// ── SCORING GUIDE ─────────────────────────────────────────────────────────
 function renderScoring() {
-  const el = document.getElementById('scoringRows');
-  if (!el || el.children.length) return;
-  el.innerHTML = SCORING_CRITERIA.map(c => `
-    <div class="criterion-row">
-      <div>
-        <div class="cr-name">${c.name}</div>
-        <div class="cr-desc">${c.desc}</div>
-      </div>
-      <div class="cr-max">${c.max}</div>
-    </div>
-  `).join('');
+  const el = document.getElementById('scoreGuide');
+  if (!el||el.children.length) return;
+  el.innerHTML = SCORING.map(c=>'<div class="cr"><div><div class="cr-nm">'+c.n+'</div><div class="cr-ds">'+c.d+'</div></div><div class="cr-mx">'+c.m+'</div></div>').join('');
 }
 
-// ═══════════════════════════════════════════
-//  INIT
-// ═══════════════════════════════════════════
-updateBadges();
+// ── DASHBOARD ─────────────────────────────────────────────────────────────
+function renderDash() {
+  badges();
+  const grid = document.getElementById('dashCands');
+  if (!saved.length) { grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:36px;color:var(--mist);font-size:12px">No candidates saved yet.</div>'; return; }
+  grid.innerHTML = [...saved].sort((a,b)=>b.totalScore-a.totalScore).slice(0,9).map(l=>{
+    const pct=Math.round((l.totalScore/15)*100);
+    const sc=l.totalScore>=11?'sp-hi':l.totalScore>=7?'sp-mid':'sp-lo';
+    const bc=l.totalScore>=11?'#059669':l.totalScore>=7?'#1d4ed8':'#475569';
+    return '<div class="cc" onclick="go(\'search\',null);document.getElementById(\'ni-search\').classList.add(\'on\')"><div class="cc-top"><div><div class="cc-nm">'+l.address+'</div><div class="cc-mt">'+l.city+', '+l.state+' · '+(l.acres||'?')+'ac</div></div><span class="sp '+sc+'" style="font-size:10px;padding:2px 9px">'+l.totalScore+'/15</span></div><div class="minibar"><div class="minifill" style="width:'+pct+'%;background:'+bc+'"></div></div></div>';
+  }).join('');
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+badges();
 renderCities();
 renderScoring();
+renderDash();
 </script>
 </body>
 </html>
