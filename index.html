@@ -668,9 +668,10 @@ function renderSaved() {
       const safeAddr = (l.address||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
       const safeCity = (l.city||'').replace(/'/g,"\\'");
       const safeState = (l.state||'').replace(/'/g,"\\'");
+      const searchUrl = 'https://www.google.com/search?q='+encodeURIComponent((l.address||'')+' '+(l.city||'')+' '+(l.state||'')+' commercial land for sale');
       const listingBtn = l.listingUrl
         ? '<a href="'+l.listingUrl+'" target="_blank" style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;background:rgba(224,138,0,.15);border:1px solid rgba(224,138,0,.4);border-radius:4px;color:var(--amber3);font-family:var(--ff-mono);font-size:10px;font-weight:600;text-decoration:none">View Listing ↗</a>'
-        : '';
+        : '<a href="'+searchUrl+'" target="_blank" style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;background:var(--ink3);border:1px solid var(--border2);border-radius:4px;color:var(--mist);font-family:var(--ff-mono);font-size:10px;text-decoration:none">Search ↗</a>';
       html += '<div class="pc '+(l.pillars&&l.pillars.allPass?'pass':'fail')+'" style="margin-bottom:9px">';
       html += '<div class="pc-top"><div style="flex:1;min-width:0">';
       html += '<div class="pc-name">'+l.address+'</div>';
