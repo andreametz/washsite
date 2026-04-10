@@ -646,12 +646,12 @@ function renderSaved() {
   }
   const sorted = [...saved].sort((a,b)=>b.totalScore-a.totalScore);
   const byCity = {};
-  sorted.forEach(p=>{ const k=p.city+', '+p.state; if(!byCity[k])byCity[k]=[]; byCity[k].push(p); });
+  sorted.forEach(p=>{ const k=(p.city||'Unknown City')+', '+(p.state||'??'); if(!byCity[k])byCity[k]=[]; byCity[k].push(p); });
 
   let html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div class="sh" style="margin-bottom:0">Saved Candidates ('+saved.length+')</div><button class="btn btn-d btn-xs" onclick="if(confirm(\'Clear all?\'))saved=[],persist(),renderSaved()">Clear all</button></div>';
 
   Object.entries(byCity).forEach(([city, parcels]) => {
-    html += '<div style="margin-bottom:22px"><div class="cgh">'+city+' &middot; '+parcels.length+' parcel'+(parcels.length>1?'s':'')+'</div>';
+    html += '<div style="margin-bottom:12px">';
     parcels.forEach((l, idx) => {
       recalcScore(l);
       const pct = Math.round((l.totalScore/15)*100);
@@ -674,7 +674,7 @@ function renderSaved() {
       html += '<div class="pc '+(l.pillars&&l.pillars.allPass?'pass':'fail')+'" style="margin-bottom:9px">';
       html += '<div class="pc-top"><div style="flex:1;min-width:0">';
       html += '<div class="pc-name">'+l.address+'</div>';
-      html += '<div class="pc-meta">'+(l.acres?l.acres+' ac':'ac TBD')+' &nbsp;&middot;&nbsp; '+(l.price?'$'+Number(l.price).toLocaleString():'Price TBD')+'</div>';
+      html += '<div class="pc-meta">'+(l.city?l.city+', '+l.state+' &nbsp;&middot;&nbsp; ':'')+' '+(l.acres?l.acres+' ac':'ac TBD')+' &nbsp;&middot;&nbsp; '+(l.price?'$'+Number(l.price).toLocaleString():'Price TBD')+'</div>';
       html += '<div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin-top:4px">'+listingBtn;
       html += (fails.length?'<div class="pc-tag pt-fail">✗ '+fails.join(' | ')+'</div>':'<div class="pc-tag pt-pass">✓ Pillars pass</div>');
       html += '</div></div>';
