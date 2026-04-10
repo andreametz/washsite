@@ -473,7 +473,7 @@ async function runSearch() {
   const userMsg = 'Find active vacant commercial land listings in '+city+', '+state+' that are between 0.5 and 1.0 acres'+(maxPrice!=='0'?' and priced under $'+Number(maxPrice).toLocaleString():'')+'. Use web search to find real current listings suitable for a tunnel express car wash. Score every parcel. Return 3–8 results.';
 
   try {
-    setStatus('Calling search API…', true);
+    setStatus('Searching listings in ' + city + ', ' + state + ' — this takes 30–60 seconds…', true);
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 55000);
 
