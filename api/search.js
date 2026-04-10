@@ -21,29 +21,40 @@ export default async function handler(req, res) {
   if (!city || !state) return res.status(400).json({ error: 'City and state required' });
 
   const priceClause = maxPrice && maxPrice !== '0'
-    ? ` under $${Number(maxPrice).toLocaleString()}` : '';
+    ? ` under $${Number(maxPrice).toLocaleString()}` : ' under $1,000,000';
   const incomeScore = cityMHI ? (cityMHI > 75000 ? 2 : 1) : 1;
   const zoningUrl = municodeSlug ? `https://library.municode.com/${municodeSlug}` : null;
 
-  // 4 parallel searches across different sources and query styles
   const searches = [
-    `"${city}" "${state}" commercial land for sale 0.5 acre 1 acre loopnet.com`,
+    `"${city}" "${state}" vacant commercial land for sale 0.5 acre 1 acre loopnet`,
     `"${city}" "${state}" commercial lot pad site for sale half acre one acre crexi`,
-    `"${city}" "${state}" vacant land commercial sale .5 acre 1 acre landwatch landwatch.com`,
-    `"${city}" "${state}" commercial land for sale site loopnet OR crexi OR landsearch 2024 2025`,
+    `"${city}" "${state}" vacant land commercial for sale 0.5 to 1 acre landwatch`,
+    `"${city}" "${state}" commercial land for sale loopnet crexi landsearch 2025`,
   ];
 
-  const extractorSystem = `You are a real estate listing extractor. Find VACANT COMMERCIAL LAND listings only.
-INCLUDE: vacant lots, commercial land, pad sites, development land, commercial parcels
-EXCLUDE: homes, houses, residential lots, buildings, warehouses, office buildings, retail buildings, any structure with square footage
-RULES:
-- Search thoroughly and extract every qualifying listing you find
-- Include listings even if acreage or price is unknown — leave those fields null
-- Return a JSON array. Each item: {"address":"full street address with city and state","acres":null,"price":null,"url":"full listing URL","zoning":"","description":""}
-- Return [] only if you truly find nothing
-- No markdown, no explanation — just the raw JSON array starting with [`;
+  const extractorSystem = `You are a commercial real estate data extractor. Search for VACANT LAND ONLY suitable for building a car wash.
 
-  const searchPromises = searches.map((query, idx) =>
+ONLY INCLUDE:
+- Vacant commercial land / lots
+- Unimproved land zoned commercial or general business
+- Pad sites (empty, no building)
+- Land listed on LoopNet, Crexi, LandWatch, or LandSearch
+- Size: 0.5 to 1.0 acres ONLY — skip anything smaller than 0.5ac or larger than 1.0ac
+- Price: under $1,000,000 ONLY — skip anything over $1M
+
+DO NOT INCLUDE — skip immediately:
+- Homes, houses, residential properties
+- Buildings of any kind (retail, office, warehouse, industrial)
+- Properties with square footage listed (SF, sq ft) — these are buildings
+- Residential lots or subdivisions
+- Anything with bedrooms, bathrooms, HOA
+- Acreage over 1.0 acres or under 0.5 acres
+- Price over $1,000,000
+
+Return a JSON array. Each item: {"address":"full street address","acres":0.0,"price":null,"url":"full listing URL","zoning":"","description":"brief description of the land"}
+Return [] if nothing qualifies. No markdown, no explanation — just the JSON array.`;
+
+  const searchPromises = searches.map(query =>
     fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -56,7 +67,7 @@ RULES:
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 2500,
         system: extractorSystem,
-        messages: [{ role: 'user', content: `Search for this query and extract ALL listings: ${query}` }],
+        messages: [{ role: 'user', content: `Search and extract ALL qualifying vacant commercial land listings: ${query}` }],
         tools: [{ type: 'web_search_20250305', name: 'web_search' }]
       })
     }).then(r => r.ok ? r.json() : null).catch(() => null)
@@ -64,9 +75,11 @@ RULES:
 
   const searchResults = await Promise.all(searchPromises);
 
-  // Extract and deduplicate all listings
   const allListings = [];
   const seen = new Set();
+
+  // Keywords that indicate a building/residential — reject these
+  const rejectPattern = /\b(house|home|residence|residential|bedroom|bath|sqft|sq\.?ft|square.?feet|square.?foot|apartment|condo|townhome|townhouse|single.?family|duplex|sfr|mls#?|hoa|warehouse|office building|retail building|industrial|sq\.ft|garage|roof|hvac|tenant|lease|±\d+,?\d+\s*sf)\b/i;
 
   for (const result of searchResults) {
     if (!result) continue;
@@ -77,12 +90,19 @@ RULES:
       if (start === -1 || end === -1) continue;
       const parsed = JSON.parse(text.substring(start, end + 1));
       if (!Array.isArray(parsed)) continue;
+
       for (const item of parsed) {
         if (!item.address) continue;
-        // Hard filter on size only if explicitly known
+
+        // Reject buildings/residential
+        const fullText = [item.address, item.description, item.zoning].filter(Boolean).join(' ');
+        if (rejectPattern.test(fullText)) continue;
+
+        // Strict size filter — must be 0.5 to 1.0 acres
         const acres = parseFloat(item.acres);
-        if (acres && (acres < 0.45 || acres > 1.1)) continue;
-        // Hard filter on price only if explicitly known
+        if (acres && (acres < 0.5 || acres > 1.0)) continue;
+
+        // Strict price filter — must be under $1M
         let price = null;
         if (item.price) {
           const ps = String(item.price).toLowerCase().replace(/[\s,]/g, '');
@@ -91,10 +111,6 @@ RULES:
           else price = parseFloat(ps.replace(/[^0-9.]/g, ''));
         }
         if (price && price > 1000000) continue;
-        // Filter out residential/building listings
-        const desc = ((item.description||'') + ' ' + (item.address||'') + ' ' + (item.zoning||'')).toLowerCase();
-        const isResidential = /\b(house|home|residential|bedroom|bath|sqft|sq ft|square feet|apartment|condo|townhome|townhouse|single.family|duplex|sfr|mls#|hoa)\b/.test(desc);
-        if (isResidential) continue;
 
         // Deduplicate
         const key = item.address.toLowerCase().replace(/\s+/g, '');
@@ -107,32 +123,34 @@ RULES:
 
   const listingData = allListings.length > 0 ? JSON.stringify(allListings) : '[]';
 
-  // Step 2: Score ALL listings
-  const system = `You are a tunnel express car wash site analyst. Score every listing provided.
+  const system = `You are a tunnel express car wash site analyst. Score the provided VACANT LAND listings only.
 
-CITY DATA (pre-verified, do not search):
+CITY DATA (pre-verified):
 - City: ${city}, ${state}
 - Population: ${cityPop ? Number(cityPop).toLocaleString() : 'unknown'} ${cityPop >= 30000 ? '✓' : '✗'}
 - MHI: ${cityMHI ? '$' + Number(cityMHI).toLocaleString() : 'unknown'} → income score: ${incomeScore}/2
 - Zoning reference: ${zoningUrl || 'search city zoning code'}
 
+HARD RULES — remove any listing that fails these:
+- Size must be 0.5 to 1.0 acres — reject anything outside this range
+- Price must be under $1,000,000 — reject anything over $1M
+- Must be vacant land only — reject any building, home, or improved property
+
 SCORING:
 - income: ${incomeScore} (fixed)
 - competition: estimate from knowledge of ${city} car wash market, mark unverified
 - aadt: estimate from knowledge of roads in ${city}, mark unverified
-- size: 0.5-0.75ac=1pt, 0.75-1.0ac=2pts, unknown=1pt (mark unverified)
-- price: $0-500K=2pts, $500K-$1M=1pt, >$1M=DO NOT INCLUDE (remove from results), unknown=1pt (mark unverified)
+- size: 0.5-0.75ac=1pt, 0.75-1.0ac=2pts, unknown=1pt mark unverified
+- price: $0-500K=2pts, $500K-$1M=1pt, over $1M=exclude, unknown=1pt mark unverified
 - goingHome/multifamily/speedLimit/retail/frontage: estimate from knowledge, mark unverified
 - Zoning pillar: mark "Zoning: verify at ${zoningUrl || 'city code'}" in fails unless confirmed by-right
 
-CRITICAL: Score EVERY listing. Return ALL of them. Do not drop any.
-
-Return ONLY raw JSON, start with {, end with }, no markdown, ASCII only:
+Return ONLY raw JSON starting with { ending with }, no markdown, ASCII only:
 {"city":"${city}","state":"${state}","cityMHI":${cityMHI||0},"cityPop":${cityPop||0},"searchNote":"","listings":[{"address":"","city":"${city}","state":"${state}","acres":0,"price":null,"zoning":"","apn":null,"listingUrl":null,"mapUrl":"","zoningUrl":${zoningUrl?`"${zoningUrl}"`:'null'},"pillars":{"allPass":false,"fails":[]},"scores":{"income":${incomeScore},"competition":0,"aadt":0,"size":0,"price":0,"goingHome":0,"multifamily":0,"speedLimit":0,"retail":0,"frontage":0},"totalScore":0,"unverified":[],"notes":""}]}`;
 
   const userMsg = allListings.length > 0
-    ? `Score ALL ${allListings.length} of these listings for ${city}, ${state}. Return all ${allListings.length} scored results.\n\n${listingData}`
-    : `No listings were found from live search. Generate 4-6 realistic commercial land listings based on your knowledge of active commercial corridors in ${city}, ${state}. Mark each as "unverified — confirm listing is active". Return JSON.`;
+    ? `Score these ${allListings.length} vacant land listings for ${city}, ${state}. Apply all hard rules. Return all qualifying results as JSON.\n\n${listingData}`
+    : `No listings found from live search. Generate 3-5 realistic VACANT COMMERCIAL LAND listings (0.5-1.0 acres, under $1M) based on your knowledge of commercial corridors in ${city}, ${state}. Mark each "unverified — confirm listing is active". Return JSON.`;
 
   const makeRequest = async () => fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
