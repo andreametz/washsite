@@ -439,8 +439,24 @@ function go(id, el) {
 }
 
 // ── LOAD RESULTS (called by Claude) ───────────────────────────────────────
+// Recalculate totalScore from actual score values — never trust Claude's sum
+function recalcScore(l) {
+  if (!l.scores) return 0;
+  const s = l.scores;
+  const keys = ['income','competition','aadt','size','price','goingHome','multifamily','speedLimit','retail','frontage'];
+  const maxes = [2, 2, 2, 2, 2, 1, 1, 1, 1, 1];
+  let total = 0;
+  keys.forEach((k, i) => {
+    const v = Math.max(0, Math.min(maxes[i], parseInt(s[k]) || 0));
+    s[k] = v; // clamp each score to its max
+    total += v;
+  });
+  l.totalScore = Math.min(15, total); // hard cap at 15
+  return l.totalScore;
+}
+
 window.loadResults = function(data) {
-  current = (data.listings||[]).sort((a,b)=>b.totalScore-a.totalScore);
+  current = (data.listings||[]).map(l => { recalcScore(l); return l; }).sort((a,b)=>b.totalScore-a.totalScore);
   const pass = current.filter(l=>l.pillars&&l.pillars.allPass).length;
   const strong = current.filter(l=>l.totalScore>=11).length;
   document.getElementById('rtitle').textContent = current.length+' parcels — '+data.city+', '+data.state;
@@ -567,6 +583,7 @@ function renderCards(rows, id, showSave) {
 function toggleSave(idx, btnId) {
   const l = current[idx];
   if (!l) return;
+  recalcScore(l); // ensure score is accurate before saving
   const ei = saved.findIndex(s=>s.address===l.address&&s.city===l.city&&s.state===l.state);
   const btn = document.getElementById(btnId);
   if (ei>=0) { saved.splice(ei,1); if(btn){btn.textContent='+ Save';btn.className='btn btn-xs btn-p';} }
