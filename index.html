@@ -453,7 +453,7 @@ window.loadResults = function(data) {
 };
 
 // ── SEARCH ────────────────────────────────────────────────────────────────
-const SYS = `You are a commercial real estate analyst specializing in tunnel express car wash site selection. Search for and score active vacant commercial land listings in the specified city using web search tools. Return ONLY valid JSON (no markdown). Required pillars: Pop>=30000, 0-1 tunnel wash within 1mi, AADT>=13000, 0.5-1.0ac, by-right zoning, MHI>=50000. Scoring: income(0-2), competition(0-2), aadt(0-2), size(0-2), price(0-2), goingHome(0-1), multifamily(0-1), speedLimit(0-1), retail(0-1), frontage(0-1). JSON format: {"city":"","state":"","cityMHI":0,"cityPop":0,"searchNote":"","listings":[{"address":"","city":"","state":"","acres":0,"price":null,"zoning":"","apn":null,"listingUrl":null,"mapUrl":"","zoningUrl":null,"pillars":{"allPass":false,"fails":[]},"scores":{"income":0,"competition":0,"aadt":0,"size":0,"price":0,"goingHome":0,"multifamily":0,"speedLimit":0,"retail":0,"frontage":0},"totalScore":0,"unverified":[],"notes":""}]}`;
+const SYS = `You are a car wash site analyst. Find 3-6 active vacant commercial land listings (0.5-1.0 acres) in the given city suitable for a tunnel express car wash. Use web search. Score each on: income(0-2), competition(0-2), aadt(0-2), size(0-2), price(0-2), goingHome(0-1), multifamily(0-1), speedLimit(0-1), retail(0-1), frontage(0-1). Pillars: pop>=30000, 0-1 tunnel wash within 1mi, AADT>=13000, 0.5-1.0ac, by-right zoning, MHI>=50000. Return ONLY JSON: {"city":"","state":"","cityMHI":0,"cityPop":0,"searchNote":"","listings":[{"address":"","city":"","state":"","acres":0,"price":null,"zoning":"","apn":null,"listingUrl":null,"mapUrl":"","zoningUrl":null,"pillars":{"allPass":false,"fails":[]},"scores":{"income":0,"competition":0,"aadt":0,"size":0,"price":0,"goingHome":0,"multifamily":0,"speedLimit":0,"retail":0,"frontage":0},"totalScore":0,"unverified":[],"notes":""}]}`;
 
 function setStatus(msg, loading) {
   document.getElementById('sbar').innerHTML = loading ? '<div class="spin"></div>'+msg : msg;
@@ -470,24 +470,18 @@ async function runSearch() {
   document.getElementById('resultsWrap').style.display = 'none';
   setStatus('Searching '+city+', '+state+' for commercial land listings…', true);
 
-  const userMsg = 'Find active vacant commercial land listings in '+city+', '+state+' that are between 0.5 and 1.0 acres'+(maxPrice!=='0'?' and priced under $'+Number(maxPrice).toLocaleString():'')+'. Use web search to find real current listings suitable for a tunnel express car wash. Score every parcel. Return 3–8 results.';
+  const userMsg = 'Find 3-6 vacant commercial land listings (0.5-1.0ac) in '+city+', '+state+(maxPrice!=='0'?' under $'+Number(maxPrice).toLocaleString():'')+' for a tunnel car wash. Search LoopNet, Crexi, LandWatch. Score each parcel. Return JSON only.';
 
   try {
     setStatus('Searching listings in ' + city + ', ' + state + ' — this takes 30–60 seconds…', true);
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 55000);
+    const timeout = setTimeout(() => controller.abort(), 175000);
 
     const resp = await fetch('/api/search', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
       signal: controller.signal,
-      body: JSON.stringify({
-        model: 'claude-opus-4-5',
-        max_tokens: 4096,
-        system: SYS,
-        messages: [{role:'user', content:userMsg}],
-        tools: [{type:'web_search_20250305', name:'web_search'}]
-      })
+      body: JSON.stringify({ city, state, maxPrice })
     });
 
     clearTimeout(timeout);
@@ -509,7 +503,7 @@ async function runSearch() {
     window.loadResults(parsed);
   } catch(e) {
     if (e.name === 'AbortError') {
-      setStatus('Search is taking longer than usual — please try again.');
+      setStatus('Search timed out. Please try again — searches typically take 30–90 seconds.');
     } else {
       setStatus('Error: ' + e.message);
     }
