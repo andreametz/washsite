@@ -753,18 +753,7 @@ body {
   <div class="sidebar-footer">
     <div class="api-key-section">
       <div class="api-label">Anthropic API Key</div>
-      <input
-        type="password"
-        class="api-key-field"
-        id="apiKey"
-        placeholder="sk-ant-api03-..."
-        oninput="checkKey()"
-        autocomplete="off"
-      />
-      <div class="api-status">
-        <div class="status-dot" id="apiDot"></div>
-        <span id="apiStatusText">Enter key to enable live search</span>
-      </div>
+      <div style="color:#6ee7b7;margin-top:4px">&#9679; API connected</div>
     </div>
   </div>
 </aside>
@@ -1252,20 +1241,12 @@ function nav(id, el) {
 // ═══════════════════════════════════════════
 //  API KEY
 // ═══════════════════════════════════════════
-function checkKey() {
-  const key = document.getElementById('apiKey').value.trim();
-  const dot = document.getElementById('apiDot');
-  const txt = document.getElementById('apiStatusText');
-  if (key.startsWith('sk-ant') && key.length > 20) {
-    dot.className = 'status-dot active';
-    txt.textContent = 'Ready — live search enabled';
-  } else {
+ else {
     dot.className = 'status-dot';
     txt.textContent = 'Enter key to enable live search';
   }
 }
 
-function getKey() { return document.getElementById('apiKey').value.trim(); }
 
 // ═══════════════════════════════════════════
 //  DASHBOARD
@@ -1395,13 +1376,8 @@ async function runSearch() {
   const state = document.getElementById('sState').value.trim().toUpperCase();
   const maxPrice = document.getElementById('sPrice').value;
   const minAcres = document.getElementById('sAcres').value;
-  const apiKey = getKey();
 
   if (!city || !state) { setStatus('Please enter a city and state.'); return; }
-  if (!apiKey || !apiKey.startsWith('sk-ant')) {
-    setStatus('⚠ Paste your Anthropic API key in the sidebar to enable live search.');
-    return;
-  }
 
   document.getElementById('runBtn').disabled = true;
   document.getElementById('resultsSection').style.display = 'none';
@@ -1411,13 +1387,10 @@ async function runSearch() {
   const userMsg = `Find active vacant commercial land listings in ${city}, ${state} that are between ${minAcres} and 1.0 acres${maxPrice !== '0' ? ` and priced under $${Number(maxPrice).toLocaleString()}` : ''}. Use web search to find real current listings suitable for a tunnel express car wash. Research each parcel's AADT, zoning, and competition. Score every parcel. Return 3–8 results minimum.`;
 
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    const resp = await fetch('/api/search', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-beta': 'web-search-2025-03-05'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         model: 'claude-opus-4-5',
