@@ -28,8 +28,8 @@ export default async function handler(req, res) {
   // Run 3 parallel searches across different sources for maximum coverage
   const searches = [
     `vacant commercial land for sale ${city} ${state} 0.5 to 1 acre${priceClause} loopnet`,
-    `vacant commercial land for sale ${city} ${state} 0.5 to 1 acre${priceClause} crexi`,
-    `commercial lot for sale ${city} ${state} half acre to one acre${priceClause} landwatch OR landsearch`
+    `vacant commercial land for sale ${city} ${state} 0.5 to 1 acre${priceClause} site:crexi.com`,
+    `commercial pad site for sale ${city} ${state} half acre to one acre under $1 million${priceClause} landwatch OR landsearch`
   ];
 
   const searchPromises = searches.map(query =>
@@ -44,7 +44,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 2000,
-        system: `You are a real estate data extractor. Search for commercial land listings and extract ALL results found. Return a JSON array — include every listing you find, do not limit the count. Each item: {"address":"full street address","acres":0.0,"price":null,"url":"full listing URL","zoning":"zoning if known or empty","description":"brief description"}. Return [] if nothing found. No markdown, no explanation, just the JSON array.`,
+        system: `You are a real estate data extractor. Search for commercial land listings and extract ALL results found. Return a JSON array — include every listing you find, do not limit the count. Each item: {"address":"full street address","acres":0.0,"price":null,"url":"full listing URL","zoning":"zoning if known or empty","description":"brief description"}. ONLY include parcels between 0.5 and 1.0 acres. ONLY include parcels under $1,000,000. Skip anything larger or more expensive. Return [] if nothing found. No markdown, no explanation, just the JSON array.`,
         messages: [{ role: 'user', content: `Search for: ${query}. Extract ALL listings found — do not filter or limit results. Return complete JSON array.` }],
         tools: [{ type: 'web_search_20250305', name: 'web_search' }]
       })
@@ -69,6 +69,15 @@ export default async function handler(req, res) {
       if (!Array.isArray(parsed)) continue;
       for (const item of parsed) {
         if (!item.address) continue;
+
+        // Hard filter: size must be 0.5-1.0 acres
+        const acres = parseFloat(item.acres);
+        if (acres && (acres < 0.5 || acres > 1.0)) continue;
+
+        // Hard filter: price must be under $1M (or unknown — let scorer handle)
+        const price = item.price ? parseFloat(String(item.price).replace(/[^0-9.]/g, '')) : null;
+        if (price && price > 1000000) continue;
+
         // Deduplicate by address
         const key = item.address.toLowerCase().replace(/\s+/g, '');
         if (seen.has(key)) continue;
@@ -101,6 +110,7 @@ SCORING (apply to every listing):
 - Zoning pillar: always mark "Zoning: verify at ${zoningUrl || 'city code'}" as pillar fail unless you know it is confirmed by-right
 
 CRITICAL: Score EVERY listing in the input. Do not drop any. If there are 10 listings, return 10 scored results.
+PRE-FILTERED: All listings have already been filtered to 0.5-1.0 acres and under $1M. Do not return any listing outside these ranges.
 
 Return ONLY raw JSON. Start with { end with }. No markdown. ASCII only:
 {"city":"${city}","state":"${state}","cityMHI":${cityMHI||0},"cityPop":${cityPop||0},"searchNote":"","listings":[{"address":"","city":"${city}","state":"${state}","acres":0,"price":null,"zoning":"","apn":null,"listingUrl":null,"mapUrl":"","zoningUrl":${zoningUrl?`"${zoningUrl}"`:'null'},"pillars":{"allPass":false,"fails":[]},"scores":{"income":${incomeScore},"competition":0,"aadt":0,"size":0,"price":0,"goingHome":0,"multifamily":0,"speedLimit":0,"retail":0,"frontage":0},"totalScore":0,"unverified":[],"notes":""}]}`;
