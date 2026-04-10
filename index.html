@@ -495,10 +495,25 @@ async function runSearch() {
     if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
 
     const text = data.content.filter(b=>b.type==='text').map(b=>b.text).join('\n');
-    const clean = text.replace(/```json\s*/g,'').replace(/```\s*/g,'').trim();
-    const m = clean.match(/\{[\s\S]*\}/);
-    if (!m) throw new Error('No JSON found in response. Raw: ' + text.substring(0,200));
-    const parsed = JSON.parse(m[0]);
+
+    // Robust JSON extraction — strip markdown, find outermost {...}
+    let clean = text.replace(/```json\s*/gi,'').replace(/```\s*/gi,'').trim();
+    // Find the first { and last } to get outermost JSON object
+    const start = clean.indexOf('{');
+    const end = clean.lastIndexOf('}');
+    if (start === -1 || end === -1) throw new Error('No JSON found in response. Raw: ' + text.substring(0,300));
+    clean = clean.substring(start, end + 1);
+
+    // Fix common JSON issues: trailing commas, unescaped control chars
+    clean = clean.replace(/,\s*([}\]])/g, '$1');  // remove trailing commas
+    clean = clean.replace(/[\u0000-\u001F\u007F]/g, ' '); // remove control chars
+
+    let parsed;
+    try {
+      parsed = JSON.parse(clean);
+    } catch(jsonErr) {
+      throw new Error('JSON parse failed: ' + jsonErr.message + ' | Preview: ' + clean.substring(0,200));
+    }
 
     window.loadResults(parsed);
   } catch(e) {
