@@ -644,6 +644,8 @@ function renderSaved() {
     el.innerHTML='<div class="empty"><div class="empty-ic">◉</div><div class="empty-t">No saved candidates</div><div class="empty-s">Run a parcel scan and click "+ Save" to track parcels here.</div></div>';
     return;
   }
+  // Recalc all scores first, then sort
+  saved.forEach(l => recalcScore(l));
   const sorted = [...saved].sort((a,b)=>b.totalScore-a.totalScore);
   const byCity = {};
   sorted.forEach(p=>{ const k=(p.city||'Unknown City')+', '+(p.state||'??'); if(!byCity[k])byCity[k]=[]; byCity[k].push(p); });
@@ -757,7 +759,7 @@ function renderDash() {
     const pct=Math.round((l.totalScore/15)*100);
     const sc=l.totalScore>=11?'sp-hi':l.totalScore>=7?'sp-mid':'sp-lo';
     const bc=l.totalScore>=11?'#059669':l.totalScore>=7?'#1d4ed8':'#475569';
-    return '<div class="cc" onclick="go(\'search\',null);document.getElementById(\'ni-search\').classList.add(\'on\')"><div class="cc-top"><div><div class="cc-nm">'+l.address+'</div><div class="cc-mt">'+l.city+', '+l.state+' · '+(l.acres||'?')+'ac</div></div><span class="sp '+sc+'" style="font-size:10px;padding:2px 9px">'+l.totalScore+'/15</span></div><div class="minibar"><div class="minifill" style="width:'+pct+'%;background:'+bc+'"></div></div></div>';
+    return '<div class="cc" onclick="go(\'saved\',null);document.getElementById(\'ni-saved\').classList.add(\'on\')"><div class="cc-top"><div><div class="cc-nm">'+l.address+'</div><div class="cc-mt">'+l.city+', '+l.state+' · '+(l.acres||'?')+'ac</div></div><span class="sp '+sc+'" style="font-size:10px;padding:2px 9px">'+l.totalScore+'/15</span></div><div class="minibar"><div class="minifill" style="width:'+pct+'%;background:'+bc+'"></div></div></div>';
   }).join('');
 }
 
