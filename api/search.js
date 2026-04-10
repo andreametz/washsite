@@ -49,8 +49,11 @@ export default async function handler(req, res) {
   try {
     let response = await makeRequest();
 
-    if (response.status === 429) {
-      await new Promise(r => setTimeout(r, 20000));
+    // Retry up to 3 times on rate limit, waiting 60 seconds each time
+    let retries = 0;
+    while (response.status === 429 && retries < 3) {
+      retries++;
+      await new Promise(r => setTimeout(r, 60000));
       response = await makeRequest();
     }
 
