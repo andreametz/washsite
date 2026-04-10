@@ -509,7 +509,7 @@ async function runSearch() {
     window.loadResults(parsed);
   } catch(e) {
     if (e.name === 'AbortError') {
-      setStatus('Request timed out after 55 seconds. Try again.');
+      setStatus('Search is taking longer than usual — please try again.');
     } else {
       setStatus('Error: ' + e.message);
     }
