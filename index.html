@@ -425,6 +425,46 @@ let cfMode = 'all';
 let cSort = {col:'score', dir:-1};
 
 function persist() { localStorage.setItem('ws_saved', JSON.stringify(saved)); badges(); }
+
+function exportSaved() {
+  if (!saved.length) { alert('No saved candidates to export.'); return; }
+  const data = JSON.stringify(saved, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'washsite-saved-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importSaved(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (!Array.isArray(imported)) throw new Error('Invalid format');
+      // Merge with existing, deduplicate by address+city+state
+      const existing = new Set(saved.map(s => s.address + '|' + s.city + '|' + s.state));
+      let added = 0;
+      imported.forEach(p => {
+        const key = p.address + '|' + p.city + '|' + p.state;
+        if (!existing.has(key)) { saved.push(p); existing.add(key); added++; }
+      });
+      persist();
+      renderSaved();
+      renderDash();
+      alert('Imported ' + added + ' new candidates (' + (imported.length - added) + ' duplicates skipped).');
+    } catch(err) {
+      alert('Import failed: ' + err.message);
+    }
+    input.value = '';
+  };
+  reader.readAsText(file);
+}
+
 function forceReloadSaved() {
   try {
     const raw = localStorage.getItem('ws_saved');
@@ -502,7 +542,19 @@ function recalcScore(l) {
 }
 
 window.loadResults = function(data) {
-  current = (data.listings||[]).map(l => { recalcScore(l); return l; }).sort((a,b)=>b.totalScore-a.totalScore);
+  current = (data.listings||[])
+    .filter(l => {
+      // Hard filter: remove anything over $1M
+      if (!l.price) return true;
+      const ps = String(l.price).toLowerCase().replace(/[\s,]/g,'');
+      let price;
+      if (ps.includes('m')) price = parseFloat(ps.replace(/[^0-9.]/g,'')) * 1000000;
+      else if (ps.includes('k')) price = parseFloat(ps.replace(/[^0-9.]/g,'')) * 1000;
+      else price = parseFloat(ps.replace(/[^0-9.]/g,''));
+      return isNaN(price) || price <= 1000000;
+    })
+    .map(l => { recalcScore(l); return l; })
+    .sort((a,b)=>b.totalScore-a.totalScore);
   const pass = current.filter(l=>l.pillars&&l.pillars.allPass).length;
   const strong = current.filter(l=>l.totalScore>=11).length;
   document.getElementById('rtitle').textContent = current.length+' parcels — '+data.city+', '+data.state;
@@ -682,10 +734,14 @@ function renderSaved() {
     return l;
   }).sort((a,b) => (b.totalScore||0) - (a.totalScore||0));
 
-  let html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">'
+  let html = '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:16px">'
     + '<div class="sh" style="margin-bottom:0">Saved Candidates (' + saved.length + ')</div>'
+    + '<div style="display:flex;gap:6px">'
+    + '<button class="btn btn-g btn-xs" onclick="exportSaved()" title="Download your saved parcels as a backup file">⬇ Export</button>'
+    + '<button class="btn btn-g btn-xs" onclick="document.getElementById(\'importFile\').click()" title="Restore from a backup file">⬆ Import</button>'
+    + '<input type="file" id="importFile" accept=".json" style="display:none" onchange="importSaved(this)">'
     + '<button class="btn btn-d btn-xs" onclick="if(confirm(\'Clear all?\'))saved=[],persist(),renderSaved()">Clear all</button>'
-    + '</div>';
+    + '</div></div>';
 
   sorted.forEach(function(l) {
     try {
