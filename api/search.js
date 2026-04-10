@@ -84,8 +84,14 @@ RULES:
         const acres = parseFloat(item.acres);
         if (acres && (acres < 0.45 || acres > 1.1)) continue;
         // Hard filter on price only if explicitly known
-        const price = item.price ? parseFloat(String(item.price).replace(/[^0-9.]/g, '')) : null;
-        if (price && price > 1100000) continue;
+        let price = null;
+        if (item.price) {
+          const ps = String(item.price).toLowerCase().replace(/[\s,]/g, '');
+          if (ps.includes('m')) price = parseFloat(ps.replace(/[^0-9.]/g, '')) * 1000000;
+          else if (ps.includes('k')) price = parseFloat(ps.replace(/[^0-9.]/g, '')) * 1000;
+          else price = parseFloat(ps.replace(/[^0-9.]/g, ''));
+        }
+        if (price && price > 1000000) continue;
         // Deduplicate
         const key = item.address.toLowerCase().replace(/\s+/g, '');
         if (seen.has(key)) continue;
@@ -111,7 +117,7 @@ SCORING:
 - competition: estimate from knowledge of ${city} car wash market, mark unverified
 - aadt: estimate from knowledge of roads in ${city}, mark unverified
 - size: 0.5-0.75ac=1pt, 0.75-1.0ac=2pts, unknown=1pt (mark unverified)
-- price: $0-500K=2pts, $500K-$1M=1pt, >$1M=0pts, unknown=1pt (mark unverified)
+- price: $0-500K=2pts, $500K-$1M=1pt, >$1M=DO NOT INCLUDE (remove from results), unknown=1pt (mark unverified)
 - goingHome/multifamily/speedLimit/retail/frontage: estimate from knowledge, mark unverified
 - Zoning pillar: mark "Zoning: verify at ${zoningUrl || 'city code'}" in fails unless confirmed by-right
 
