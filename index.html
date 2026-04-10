@@ -246,7 +246,10 @@ body{font-family:var(--ff-sans);background:var(--ink);color:var(--fog);display:f
   </div>
 
   <!-- SAVED -->
-  <div class="page" id="pg-saved"><div id="savedWrap"></div></div>
+  <div class="page" id="pg-saved">
+    <div id="savedDebug" style="display:none;font-family:var(--ff-mono);font-size:10px;background:var(--ink3);border:1px solid var(--border2);border-radius:6px;padding:10px 14px;margin-bottom:14px;color:var(--mist);line-height:1.8"></div>
+    <div id="savedWrap"></div>
+  </div>
 
   <!-- CITIES -->
   <div class="page" id="pg-cities">
@@ -422,6 +425,21 @@ let cfMode = 'all';
 let cSort = {col:'score', dir:-1};
 
 function persist() { localStorage.setItem('ws_saved', JSON.stringify(saved)); badges(); }
+function forceReloadSaved() {
+  try {
+    const raw = localStorage.getItem('ws_saved');
+    if (raw) {
+      saved = JSON.parse(raw);
+      persist();
+      renderSaved();
+      renderDash();
+    } else {
+      alert('Nothing in localStorage — your saved parcels may have been cleared by the browser.');
+    }
+  } catch(e) {
+    alert('Error reading localStorage: ' + e.message);
+  }
+}
 
 // ── SEARCH CACHE ──────────────────────────────────────────────────────────
 function cacheKey(city, state) { return 'wscache_' + city.toLowerCase().replace(/\s+/g,'_') + '_' + state.toLowerCase(); }
@@ -643,6 +661,17 @@ function unsave(addr, city, state) {
 // ── SAVED ─────────────────────────────────────────────────────────────────
 function renderSaved() {
   const el = document.getElementById('savedWrap');
+  // Show debug info on screen
+  const dbg = document.getElementById('savedDebug');
+  if (dbg) {
+    const raw = localStorage.getItem('ws_saved');
+    const parsedLen = raw ? JSON.parse(raw).length : 0;
+    dbg.style.display = 'block';
+    dbg.innerHTML = 'localStorage ws_saved: ' + (raw ? parsedLen + ' items (' + raw.length + ' chars)' : 'null/empty')
+      + ' &nbsp;|&nbsp; saved array: ' + saved.length + ' items'
+      + ' &nbsp;|&nbsp; <button onclick="forceReloadSaved()" style="background:var(--amber);color:#fff;border:none;border-radius:4px;padding:2px 8px;cursor:pointer;font-family:var(--ff-mono);font-size:10px">Force Reload</button>'
+      + ' &nbsp;<button onclick="document.getElementById(\'savedDebug\').style.display=\'none\'" style="background:var(--ink4);color:var(--mist);border:1px solid var(--border);border-radius:4px;padding:2px 8px;cursor:pointer;font-family:var(--ff-mono);font-size:10px">Hide</button>';
+  }
   if (!saved.length) {
     el.innerHTML = '<div class="empty"><div class="empty-ic">◉</div><div class="empty-t">No saved candidates</div><div class="empty-s">Run a parcel scan and click "+ Save" to track parcels here.</div></div>';
     return;
