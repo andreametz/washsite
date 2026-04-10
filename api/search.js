@@ -33,14 +33,13 @@ export default async function handler(req, res) {
     `"${city}" "${state}" commercial land for sale site loopnet OR crexi OR landsearch 2024 2025`,
   ];
 
-  const extractorSystem = `You are a real estate listing extractor. Your job is to search and find as many commercial land listings as possible.
+  const extractorSystem = `You are a real estate listing extractor. Find VACANT COMMERCIAL LAND listings only.
+INCLUDE: vacant lots, commercial land, pad sites, development land, commercial parcels
+EXCLUDE: homes, houses, residential lots, buildings, warehouses, office buildings, retail buildings, any structure with square footage
 RULES:
-- Search thoroughly — look at multiple pages if needed
-- Extract EVERY listing you find, no matter how many
+- Search thoroughly and extract every qualifying listing you find
 - Include listings even if acreage or price is unknown — leave those fields null
-- Do NOT filter by price or acreage — extract everything and let the system filter later
 - Return a JSON array. Each item: {"address":"full street address with city and state","acres":null,"price":null,"url":"full listing URL","zoning":"","description":""}
-- If you find 10 listings, return 10. If you find 1, return 1.
 - Return [] only if you truly find nothing
 - No markdown, no explanation — just the raw JSON array starting with [`;
 
@@ -92,6 +91,11 @@ RULES:
           else price = parseFloat(ps.replace(/[^0-9.]/g, ''));
         }
         if (price && price > 1000000) continue;
+        // Filter out residential/building listings
+        const desc = ((item.description||'') + ' ' + (item.address||'') + ' ' + (item.zoning||'')).toLowerCase();
+        const isResidential = /\b(house|home|residential|bedroom|bath|sqft|sq ft|square feet|apartment|condo|townhome|townhouse|single.family|duplex|sfr|mls#|hoa)\b/.test(desc);
+        if (isResidential) continue;
+
         // Deduplicate
         const key = item.address.toLowerCase().replace(/\s+/g, '');
         if (seen.has(key)) continue;
