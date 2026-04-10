@@ -9,12 +9,15 @@ export default async function handler(req, res) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'API key not configured' });
 
-  let city, state, maxPrice;
+  let city, state, maxPrice, cityMHI, cityPop, municodeSlug;
   try {
     const body = req.body || {};
     city = body.city;
     state = body.state;
     maxPrice = body.maxPrice;
+    cityMHI = body.cityMHI;
+    cityPop = body.cityPop;
+    municodeSlug = body.municodeSlug;
   } catch(e) {
     return res.status(400).json({ error: 'Invalid request body' });
   }
@@ -25,9 +28,39 @@ export default async function handler(req, res) {
     ? ` priced under $${Number(maxPrice).toLocaleString()}`
     : '';
 
-  const system = `You are a commercial real estate analyst for tunnel express car wash site selection. Find and score vacant commercial land listings. Required pillars: pop>=30000, 0-1 tunnel wash within 1mi (self-serve don't count), AADT>=13000, parcel 0.5-1.0ac, by-right zoning, MHI>=50000. Scoring max 15pts: income(0-2), competition(0-2), aadt(0-2), size(0-2), price(0-2), goingHome(0-1), multifamily(0-1), speedLimit(0-1), retail(0-1), frontage(0-1). Return ONLY valid JSON no markdown: {"city":"","state":"","cityMHI":0,"cityPop":0,"searchNote":"","listings":[{"address":"","city":"","state":"","acres":0,"price":null,"zoning":"","apn":null,"listingUrl":null,"mapUrl":"","zoningUrl":null,"pillars":{"allPass":false,"fails":[]},"scores":{"income":0,"competition":0,"aadt":0,"size":0,"price":0,"goingHome":0,"multifamily":0,"speedLimit":0,"retail":0,"frontage":0},"totalScore":0,"unverified":[],"notes":""}]}`;
+  const zoningUrl = municodeSlug
+    ? `https://library.municode.com/${municodeSlug}`
+    : null;
 
-  const userMsg = `Find 3-6 active vacant commercial land listings (0.5-1.0 acres${priceClause}) in ${city}, ${state} for a tunnel express car wash. Search LoopNet, Crexi, LandWatch, county assessor. Check AADT from state DOT, competition from Google Maps, zoning from city code. Score every parcel. Return JSON only.`;
+  const system = `You are a tunnel express car wash site analyst. Your job is to find vacant commercial land listings and verify zoning only. Use at most 2 web searches total: one for listings, one for zoning.
+
+CITY CONTEXT (already verified — do not search for these):
+- Population: ${cityPop ? Number(cityPop).toLocaleString() : 'unknown'} ✓
+- Median Household Income: ${cityMHI ? '$' + Number(cityMHI).toLocaleString() : 'unknown'} ✓
+- These already pass the population and income pillars.
+
+WHAT TO SEARCH:
+1. Search for vacant commercial land listings (0.5–1.0 acres${priceClause}) in ${city}, ${state} on LoopNet, Crexi, or LandWatch
+2. ${zoningUrl ? `Check ${zoningUrl} to verify if car washes / auto-related uses are permitted by-right (no SUP required)` : `Search for ${city} ${state} zoning code car wash permitted uses`}
+
+SCORING (score from training knowledge, mark as unverified if uncertain):
+- income: ${cityMHI ? (cityMHI > 75000 ? '2 (>$75K confirmed)' : '1 ($50K-$75K confirmed)') : '?'}
+- competition: score 1-2 based on your knowledge of car wash density in this market, mark unverified
+- aadt: score based on known road traffic levels, mark unverified  
+- size: score from listing acreage (0.5–0.75ac=1pt, 0.75–1.0ac=2pts)
+- price: $0–$500K=2pts, $500K–$1M=1pt, >$1M=0pts
+- goingHome: mark unverified
+- multifamily: score from knowledge of area, mark unverified
+- speedLimit: mark unverified
+- retail: score from knowledge of area, mark unverified
+- frontage: mark unverified if not in listing
+
+ZONING PILLAR: Only mark allPass:true if you confirmed by-right zoning from the zoning search. If uncertain, mark as pillar fail with "Zoning: requires verification" in fails array.
+
+Return ONLY a raw JSON object. No markdown, no code fences, no explanation before or after. Start your response with { and end with }. Use only ASCII characters in string values:
+{"city":"","state":"","cityMHI":${cityMHI||0},"cityPop":${cityPop||0},"searchNote":"","listings":[{"address":"","city":"","state":"","acres":0,"price":null,"zoning":"","apn":null,"listingUrl":null,"mapUrl":"","zoningUrl":${zoningUrl ? `"${zoningUrl}"` : 'null'},"pillars":{"allPass":false,"fails":[]},"scores":{"income":0,"competition":0,"aadt":0,"size":0,"price":0,"goingHome":0,"multifamily":0,"speedLimit":0,"retail":0,"frontage":0},"totalScore":0,"unverified":[],"notes":""}]}`;
+
+  const userMsg = `Find 3-6 vacant commercial land listings (0.5–1.0 acres${priceClause}) in ${city}, ${state} for a tunnel express car wash. Use max 2 web searches: one for listings, one for zoning verification. Score each parcel. Return JSON only.`;
 
   const makeRequest = async () => fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -49,7 +82,6 @@ export default async function handler(req, res) {
   try {
     let response = await makeRequest();
 
-    // Retry up to 3 times on rate limit, waiting 60 seconds each time
     let retries = 0;
     while (response.status === 429 && retries < 3) {
       retries++;
