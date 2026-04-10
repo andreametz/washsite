@@ -618,11 +618,13 @@ function renderCities() {
 }
 
 function scanCity(city, state) {
-  document.getElementById('sCity').value = city;
-  document.getElementById('sState').value = state;
   go('search', null);
   document.getElementById('ni-search').classList.add('on');
-  setTimeout(runSearch, 120);
+  setTimeout(function() {
+    document.getElementById('sCity').value = city;
+    document.getElementById('sState').value = state;
+    runSearch();
+  }, 50);
 }
 
 // ── SCORING GUIDE ─────────────────────────────────────────────────────────
