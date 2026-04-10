@@ -652,7 +652,7 @@ function renderSaved() {
 
   Object.entries(byCity).forEach(([city, parcels]) => {
     html += '<div style="margin-bottom:12px">';
-    parcels.forEach((l, idx) => {
+    parcels.forEach((l, idx) => { try {
       recalcScore(l);
       const pct = Math.round((l.totalScore/15)*100);
       const sc = l.totalScore>=11?'sp-hi':l.totalScore>=7?'sp-mid':'sp-lo';
@@ -665,9 +665,9 @@ function renderSaved() {
         if(v!==null&&v!==undefined){pt=v+'/'+mx;dc=v===0?'cf':v<mx?'cw':'cp';}
         return '<div class="ci"><div class="cdot '+dc+'"></div>'+CLABELS[j]+'<span class="ci-pt">'+pt+'</span></div>';
       }).join('');
-      const safeAddr = l.address.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-      const safeCity = l.city.replace(/'/g,"\\'");
-      const safeState = l.state.replace(/'/g,"\\'");
+      const safeAddr = (l.address||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+      const safeCity = (l.city||'').replace(/'/g,"\\'");
+      const safeState = (l.state||'').replace(/'/g,"\\'");
       const listingBtn = l.listingUrl
         ? '<a href="'+l.listingUrl+'" target="_blank" style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;background:rgba(224,138,0,.15);border:1px solid rgba(224,138,0,.4);border-radius:4px;color:var(--amber3);font-family:var(--ff-mono);font-size:10px;font-weight:600;text-decoration:none">View Listing ↗</a>'
         : '';
@@ -686,7 +686,7 @@ function renderSaved() {
       if(l.unverified&&l.unverified.length) html += '<div class="unv">⚠ Unverified: '+l.unverified.join(' · ')+'</div>';
       if(l.notes) html += '<div class="pnotes">'+l.notes+'</div>';
       html += '</div>';
-    });
+    } catch(e) { html += '<div class="pc fail" style="margin-bottom:9px;padding:12px"><div style="color:var(--red2);font-size:11px">Error rendering parcel: '+e.message+'</div></div>'; } });
     html += '</div>';
   });
   el.innerHTML = html;
