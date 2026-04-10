@@ -1,7 +1,1 @@
-{
-  "functions": {
-    "api/search.js": {
-      "runtime": "edge"
-    }
-  }
-}
+{}
