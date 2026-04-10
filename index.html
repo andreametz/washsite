@@ -291,6 +291,14 @@ body{font-family:var(--ff-sans);background:var(--ink);color:var(--fog);display:f
 // ── CITY DATA ──────────────────────────────────────────────────────────────
 const CITIES=[
 ["TX","Southlake",31137,200000,"South","DFW Metroplex","tx/southlake"],
+["TX","Frisco",219304,119000,"South","DFW Metroplex","tx/frisco"],
+["TX","Keller",45976,121000,"South","DFW Metroplex","tx/keller"],
+["TX","Celina",34268,115000,"South","DFW Metroplex","tx/celina"],
+["TX","Flower Mound",78389,128000,"South","DFW Metroplex","tx/flower_mound"],
+["TX","McKinney",210600,101000,"South","DFW Metroplex","tx/mckinney"],
+["TX","Allen",110265,110000,"South","DFW Metroplex","tx/allen"],
+["TX","Midlothian",39356,98000,"South","DFW Metroplex","tx/midlothian"],
+["TX","Mansfield",77510,103000,"South","DFW Metroplex","tx/mansfield"],
 ["VA","McLean",49627,200000,"South","Northern VA",null],
 ["MD","Potomac",45000,200000,"Northeast","DC Metro",null],
 ["TN","Brentwood",45556,163000,"South","Middle TN","tn/brentwood"],
@@ -300,13 +308,9 @@ const CITIES=[
 ["GA","Milton",41546,142000,"South","Atlanta Metro","ga/milton"],
 ["WA","Redmond",67000,140000,"West","Puget Sound","wa/redmond"],
 ["KS","Leawood",33809,139000,"Midwest","KC Metro","ks/leawood"],
-["TX","Frisco",219304,119000,"South","DFW Metroplex","tx/frisco"],
-["TX","Keller",45976,121000,"South","DFW Metroplex","tx/keller"],
 ["IN","Zionsville",32000,124000,"Midwest","Indy Metro","in/zionsville"],
 ["IN","Carmel",99000,115000,"Midwest","Indy Metro","in/carmel"],
 ["IN","Fishers",97000,108000,"Midwest","Indy Metro","in/fishers"],
-["TX","Celina",34268,115000,"South","DFW Metroplex","tx/celina"],
-["TX","Flower Mound",78389,128000,"South","DFW Metroplex","tx/flower_mound"],
 ["NC","Holly Springs",45248,115000,"South","Triangle","nc/holly_springs"],
 ["NC","Apex",70630,110000,"South","Triangle","nc/apex"],
 ["NC","Cary",179306,113000,"South","Triangle","nc/cary"],
@@ -361,16 +365,12 @@ const CITIES=[
 ["NC","Cornelius",32783,103000,"South","Charlotte Metro","nc/cornelius"],
 ["NC","Huntersville",63969,93000,"South","Charlotte Metro","nc/huntersville"],
 ["NC","Wake Forest",52844,99000,"South","Triangle","nc/wake_forest"],
-["TX","McKinney",210600,101000,"South","DFW Metroplex","tx/mckinney"],
-["TX","Allen",110265,110000,"South","DFW Metroplex","tx/allen"],
 ["TX","Sugar Land",110016,109000,"South","Houston Metro","tx/sugar_land"],
 ["TX","Round Rock",127786,95000,"South","Austin Metro","tx/round_rock"],
 ["TX","Pearland",127514,95000,"South","Houston Metro","tx/pearland"],
 ["TX","Georgetown",85999,90000,"South","Austin Metro","tx/georgetown"],
 ["TX","Cedar Park",78301,102000,"South","Austin Metro","tx/cedar_park"],
 ["TX","Leander",74067,99000,"South","Austin Metro","tx/leander"],
-["TX","Midlothian",39356,98000,"South","DFW Metroplex","tx/midlothian"],
-["TX","Mansfield",77510,103000,"South","DFW Metroplex","tx/mansfield"],
 ["OK","Edmond",96825,94000,"South","OKC Metro","ok/edmond"],
 ["OK","Bixby",30155,103000,"South","Tulsa Metro","ok/bixby"],
 ["VA","Virginia Beach",456349,86000,"South","Hampton Roads","va/virginia_beach"],
@@ -481,7 +481,7 @@ async function runSearch() {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
       signal: controller.signal,
-      body: JSON.stringify({ city, state, maxPrice })
+      body: JSON.stringify({ city, state, maxPrice, ...getCityData(city, state) })
     });
 
     clearTimeout(timeout);
@@ -630,6 +630,12 @@ function scanCity(city, state) {
     document.getElementById('sState').value = state;
     runSearch();
   }, 50);
+}
+
+function getCityData(city, state) {
+  const match = CITIES.find(r => r[1].toLowerCase() === city.toLowerCase() && r[0].toLowerCase() === state.toLowerCase());
+  if (!match) return {};
+  return { cityMHI: match[3], cityPop: match[2], municodeSlug: match[6] || null };
 }
 
 // ── SCORING GUIDE ─────────────────────────────────────────────────────────
