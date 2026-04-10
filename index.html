@@ -246,10 +246,7 @@ body{font-family:var(--ff-sans);background:var(--ink);color:var(--fog);display:f
   </div>
 
   <!-- SAVED -->
-  <div class="page" id="pg-saved">
-    <div id="savedDebug" style="display:none;font-family:var(--ff-mono);font-size:10px;background:var(--ink3);border:1px solid var(--border2);border-radius:6px;padding:10px 14px;margin-bottom:14px;color:var(--mist);line-height:1.8"></div>
-    <div id="savedWrap"></div>
-  </div>
+  <div class="page" id="pg-saved"><div id="savedWrap"></div></div>
 
   <!-- CITIES -->
   <div class="page" id="pg-cities">
@@ -713,17 +710,6 @@ function unsave(addr, city, state) {
 // ── SAVED ─────────────────────────────────────────────────────────────────
 function renderSaved() {
   const el = document.getElementById('savedWrap');
-  // Show debug info on screen
-  const dbg = document.getElementById('savedDebug');
-  if (dbg) {
-    const raw = localStorage.getItem('ws_saved');
-    const parsedLen = raw ? JSON.parse(raw).length : 0;
-    dbg.style.display = 'block';
-    dbg.innerHTML = 'localStorage ws_saved: ' + (raw ? parsedLen + ' items (' + raw.length + ' chars)' : 'null/empty')
-      + ' &nbsp;|&nbsp; saved array: ' + saved.length + ' items'
-      + ' &nbsp;|&nbsp; <button onclick="forceReloadSaved()" style="background:var(--amber);color:#fff;border:none;border-radius:4px;padding:2px 8px;cursor:pointer;font-family:var(--ff-mono);font-size:10px">Force Reload</button>'
-      + ' &nbsp;<button onclick="document.getElementById(\'savedDebug\').style.display=\'none\'" style="background:var(--ink4);color:var(--mist);border:1px solid var(--border);border-radius:4px;padding:2px 8px;cursor:pointer;font-family:var(--ff-mono);font-size:10px">Hide</button>';
-  }
   if (!saved.length) {
     el.innerHTML = '<div class="empty"><div class="empty-ic">◉</div><div class="empty-t">No saved candidates</div><div class="empty-s">Run a parcel scan and click "+ Save" to track parcels here.</div></div>';
     return;
@@ -737,8 +723,8 @@ function renderSaved() {
   let html = '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:16px">'
     + '<div class="sh" style="margin-bottom:0">Saved Candidates (' + saved.length + ')</div>'
     + '<div style="display:flex;gap:6px">'
-    + '<button class="btn btn-g btn-xs" onclick="exportSaved()" title="Download your saved parcels as a backup file">⬇ Export</button>'
-    + '<button class="btn btn-g btn-xs" onclick="document.getElementById(\'importFile\').click()" title="Restore from a backup file">⬆ Import</button>'
+    + '<button class="btn btn-g btn-xs" onclick="exportSaved()" title="Download your saved parcels as a backup file">Export</button>'
+    + '<button class="btn btn-g btn-xs" onclick="document.getElementById(\'importFile\').click()" title="Restore from a backup file">Import</button>'
     + '<input type="file" id="importFile" accept=".json" style="display:none" onchange="importSaved(this)">'
     + '<button class="btn btn-d btn-xs" onclick="if(confirm(\'Clear all?\'))saved=[],persist(),renderSaved()">Clear all</button>'
     + '</div></div>';
