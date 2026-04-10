@@ -9,7 +9,16 @@ export default async function handler(req, res) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'API key not configured' });
 
-  const { city, state, maxPrice } = await req.json();
+  let city, state, maxPrice;
+  try {
+    const body = req.body || {};
+    city = body.city;
+    state = body.state;
+    maxPrice = body.maxPrice;
+  } catch(e) {
+    return res.status(400).json({ error: 'Invalid request body' });
+  }
+
   if (!city || !state) return res.status(400).json({ error: 'City and state required' });
 
   const priceClause = maxPrice && maxPrice !== '0'
@@ -18,7 +27,7 @@ export default async function handler(req, res) {
 
   const system = `You are a commercial real estate analyst for tunnel express car wash site selection. Find and score vacant commercial land listings. Required pillars: pop>=30000, 0-1 tunnel wash within 1mi (self-serve don't count), AADT>=13000, parcel 0.5-1.0ac, by-right zoning, MHI>=50000. Scoring max 15pts: income(0-2), competition(0-2), aadt(0-2), size(0-2), price(0-2), goingHome(0-1), multifamily(0-1), speedLimit(0-1), retail(0-1), frontage(0-1). Return ONLY valid JSON no markdown: {"city":"","state":"","cityMHI":0,"cityPop":0,"searchNote":"","listings":[{"address":"","city":"","state":"","acres":0,"price":null,"zoning":"","apn":null,"listingUrl":null,"mapUrl":"","zoningUrl":null,"pillars":{"allPass":false,"fails":[]},"scores":{"income":0,"competition":0,"aadt":0,"size":0,"price":0,"goingHome":0,"multifamily":0,"speedLimit":0,"retail":0,"frontage":0},"totalScore":0,"unverified":[],"notes":""}]}`;
 
-  const userMsg = `Find 3-6 active vacant commercial land listings (0.5-1.0 acres${priceClause}) in ${city}, ${state} suitable for a tunnel express car wash. Search LoopNet, Crexi, LandWatch, county assessor. Check AADT from state DOT, competition from Google Maps, zoning from city code. Score every parcel. Return JSON only.`;
+  const userMsg = `Find 3-6 active vacant commercial land listings (0.5-1.0 acres${priceClause}) in ${city}, ${state} for a tunnel express car wash. Search LoopNet, Crexi, LandWatch, county assessor. Check AADT from state DOT, competition from Google Maps, zoning from city code. Score every parcel. Return JSON only.`;
 
   const makeRequest = async () => fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
