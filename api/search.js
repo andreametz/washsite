@@ -25,14 +25,26 @@ export default async function handler(req, res) {
   const incomeScore = cityMHI ? (cityMHI > 75000 ? 2 : 1) : 1;
   const zoningUrl = municodeSlug ? `https://library.municode.com/${municodeSlug}` : null;
 
-  // Run 3 parallel searches across different sources for maximum coverage
+  // 4 parallel searches across different sources and query styles
   const searches = [
-    `vacant commercial land for sale ${city} ${state} 0.5 to 1 acre${priceClause} loopnet`,
-    `vacant commercial land for sale ${city} ${state} 0.5 to 1 acre${priceClause} site:crexi.com`,
-    `commercial pad site for sale ${city} ${state} half acre to one acre under $1 million${priceClause} landwatch OR landsearch`
+    `"${city}" "${state}" commercial land for sale 0.5 acre 1 acre loopnet.com`,
+    `"${city}" "${state}" commercial lot pad site for sale half acre one acre crexi`,
+    `"${city}" "${state}" vacant land commercial sale .5 acre 1 acre landwatch landwatch.com`,
+    `"${city}" "${state}" commercial land for sale site loopnet OR crexi OR landsearch 2024 2025`,
   ];
 
-  const searchPromises = searches.map(query =>
+  const extractorSystem = `You are a real estate listing extractor. Your job is to search and find as many commercial land listings as possible.
+RULES:
+- Search thoroughly — look at multiple pages if needed
+- Extract EVERY listing you find, no matter how many
+- Include listings even if acreage or price is unknown — leave those fields null
+- Do NOT filter by price or acreage — extract everything and let the system filter later
+- Return a JSON array. Each item: {"address":"full street address with city and state","acres":null,"price":null,"url":"full listing URL","zoning":"","description":""}
+- If you find 10 listings, return 10. If you find 1, return 1.
+- Return [] only if you truly find nothing
+- No markdown, no explanation — just the raw JSON array starting with [`;
+
+  const searchPromises = searches.map((query, idx) =>
     fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -43,18 +55,17 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 2000,
-        system: `You are a real estate data extractor. Search for commercial land listings and extract ALL results found. Return a JSON array — include every listing you find, do not limit the count. Each item: {"address":"full street address","acres":0.0,"price":null,"url":"full listing URL","zoning":"zoning if known or empty","description":"brief description"}. ONLY include parcels between 0.5 and 1.0 acres. ONLY include parcels under $1,000,000. Skip anything larger or more expensive. Return [] if nothing found. No markdown, no explanation, just the JSON array.`,
-        messages: [{ role: 'user', content: `Search for: ${query}. Extract ALL listings found — do not filter or limit results. Return complete JSON array.` }],
+        max_tokens: 2500,
+        system: extractorSystem,
+        messages: [{ role: 'user', content: `Search for this query and extract ALL listings: ${query}` }],
         tools: [{ type: 'web_search_20250305', name: 'web_search' }]
       })
     }).then(r => r.ok ? r.json() : null).catch(() => null)
   );
 
-  // Run all 3 searches in parallel
   const searchResults = await Promise.all(searchPromises);
 
-  // Extract all listings from all searches
+  // Extract and deduplicate all listings
   const allListings = [];
   const seen = new Set();
 
@@ -69,16 +80,13 @@ export default async function handler(req, res) {
       if (!Array.isArray(parsed)) continue;
       for (const item of parsed) {
         if (!item.address) continue;
-
-        // Hard filter: size must be 0.5-1.0 acres
+        // Hard filter on size only if explicitly known
         const acres = parseFloat(item.acres);
-        if (acres && (acres < 0.5 || acres > 1.0)) continue;
-
-        // Hard filter: price must be under $1M (or unknown — let scorer handle)
+        if (acres && (acres < 0.45 || acres > 1.1)) continue;
+        // Hard filter on price only if explicitly known
         const price = item.price ? parseFloat(String(item.price).replace(/[^0-9.]/g, '')) : null;
-        if (price && price > 1000000) continue;
-
-        // Deduplicate by address
+        if (price && price > 1100000) continue;
+        // Deduplicate
         const key = item.address.toLowerCase().replace(/\s+/g, '');
         if (seen.has(key)) continue;
         seen.add(key);
@@ -87,39 +95,34 @@ export default async function handler(req, res) {
     } catch(e) { continue; }
   }
 
-  const listingData = allListings.length > 0
-    ? JSON.stringify(allListings)
-    : '[]';
+  const listingData = allListings.length > 0 ? JSON.stringify(allListings) : '[]';
 
-  // Step 2: Score ALL listings with no web search
-  const system = `You are a tunnel express car wash site analyst. Score every provided listing — do not skip or omit any.
+  // Step 2: Score ALL listings
+  const system = `You are a tunnel express car wash site analyst. Score every listing provided.
 
-CITY DATA (pre-verified):
+CITY DATA (pre-verified, do not search):
 - City: ${city}, ${state}
 - Population: ${cityPop ? Number(cityPop).toLocaleString() : 'unknown'} ${cityPop >= 30000 ? '✓' : '✗'}
 - MHI: ${cityMHI ? '$' + Number(cityMHI).toLocaleString() : 'unknown'} → income score: ${incomeScore}/2
-- Zoning reference: ${zoningUrl || 'not available — search city zoning code'}
+- Zoning reference: ${zoningUrl || 'search city zoning code'}
 
-SCORING (apply to every listing):
-- income: ${incomeScore} (fixed from MHI above)
-- competition: estimate from knowledge of car wash density in ${city}, mark unverified
+SCORING:
+- income: ${incomeScore} (fixed)
+- competition: estimate from knowledge of ${city} car wash market, mark unverified
 - aadt: estimate from knowledge of roads in ${city}, mark unverified
-- size: 0.5-0.75ac=1pt, 0.75-1.0ac=2pts, outside range=0pts and fails pillar
-- price: $0-500K=2pts, $500K-$1M=1pt, >$1M=0pts, unknown=0pts
+- size: 0.5-0.75ac=1pt, 0.75-1.0ac=2pts, unknown=1pt (mark unverified)
+- price: $0-500K=2pts, $500K-$1M=1pt, >$1M=0pts, unknown=1pt (mark unverified)
 - goingHome/multifamily/speedLimit/retail/frontage: estimate from knowledge, mark unverified
-- Zoning pillar: always mark "Zoning: verify at ${zoningUrl || 'city code'}" as pillar fail unless you know it is confirmed by-right
+- Zoning pillar: mark "Zoning: verify at ${zoningUrl || 'city code'}" in fails unless confirmed by-right
 
-CRITICAL: Score EVERY listing in the input. Do not drop any. If there are 10 listings, return 10 scored results.
-PRE-FILTERED: All listings have already been filtered to 0.5-1.0 acres and under $1M. Do not return any listing outside these ranges.
+CRITICAL: Score EVERY listing. Return ALL of them. Do not drop any.
 
-Return ONLY raw JSON. Start with { end with }. No markdown. ASCII only:
+Return ONLY raw JSON, start with {, end with }, no markdown, ASCII only:
 {"city":"${city}","state":"${state}","cityMHI":${cityMHI||0},"cityPop":${cityPop||0},"searchNote":"","listings":[{"address":"","city":"${city}","state":"${state}","acres":0,"price":null,"zoning":"","apn":null,"listingUrl":null,"mapUrl":"","zoningUrl":${zoningUrl?`"${zoningUrl}"`:'null'},"pillars":{"allPass":false,"fails":[]},"scores":{"income":${incomeScore},"competition":0,"aadt":0,"size":0,"price":0,"goingHome":0,"multifamily":0,"speedLimit":0,"retail":0,"frontage":0},"totalScore":0,"unverified":[],"notes":""}]}`;
 
-  const userMsg = `Score ALL of these listings for ${city}, ${state}. Do not omit any listing. There are ${allListings.length} listings — return ${allListings.length} scored results.
-
-${listingData.length > 0 && allListings.length > 0 ? listingData : `No listings were found from the search. Generate 3-5 plausible commercial land listings based on your knowledge of active commercial corridors in ${city}, ${state}. Mark each as "unverified — confirm listing is active before contacting broker".`}
-
-Return complete JSON with all listings scored.`;
+  const userMsg = allListings.length > 0
+    ? `Score ALL ${allListings.length} of these listings for ${city}, ${state}. Return all ${allListings.length} scored results.\n\n${listingData}`
+    : `No listings were found from live search. Generate 4-6 realistic commercial land listings based on your knowledge of active commercial corridors in ${city}, ${state}. Mark each as "unverified — confirm listing is active". Return JSON.`;
 
   const makeRequest = async () => fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
