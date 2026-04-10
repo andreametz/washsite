@@ -220,7 +220,11 @@ body{font-family:var(--ff-sans);background:var(--ink);color:var(--fog);display:f
         </div>
       </div>
     </div>
-    <div class="sbar" id="sbar">Enter a city and state above, then click Search — or click "Scan ↗" next to any city in the City Database tab.</div>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
+      <div class="sbar" id="sbar" style="flex:1;margin-bottom:0">Enter a city and state above, then click Search — or click "Scan ↗" next to any city in the City Database tab.</div>
+      <button class="btn btn-g btn-xs" id="refreshBtn" onclick="runSearch(true)" style="display:none;white-space:nowrap;flex-shrink:0">↺ Refresh</button>
+    </div>
+    <div id="cacheNotice" style="display:none;font-family:var(--ff-mono);font-size:10px;color:var(--slate);margin-bottom:12px"></div>
     <div id="resultsWrap" style="display:none">
       <div class="rh">
         <div><div class="rt" id="rtitle"></div><div class="rs" id="rsub"></div></div>
@@ -416,6 +420,25 @@ let cSort = {col:'score', dir:-1};
 
 function persist() { localStorage.setItem('ws_saved', JSON.stringify(saved)); badges(); }
 
+// ── SEARCH CACHE ──────────────────────────────────────────────────────────
+function cacheKey(city, state) { return 'wscache_' + city.toLowerCase().replace(/\s+/g,'_') + '_' + state.toLowerCase(); }
+function getCached(city, state) {
+  try { return JSON.parse(localStorage.getItem(cacheKey(city, state)) || 'null'); } catch(e) { return null; }
+}
+function setCache(city, state, data) {
+  try {
+    const entry = { data, ts: Date.now() };
+    localStorage.setItem(cacheKey(city, state), JSON.stringify(entry));
+  } catch(e) {}
+}
+function cacheAge(ts) {
+  const mins = Math.floor((Date.now() - ts) / 60000);
+  if (mins < 60) return mins + 'm ago';
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return hrs + 'h ago';
+  return Math.floor(hrs / 24) + 'd ago';
+}
+
 function badges() {
   document.getElementById('nbadge').textContent = saved.length;
   document.getElementById('dSaved').textContent = saved.length;
@@ -477,12 +500,25 @@ function setStatus(msg, loading) {
   document.getElementById('sbar').innerHTML = loading ? '<div class="spin"></div>'+msg : msg;
 }
 
-async function runSearch() {
+async function runSearch(forceRefresh) {
   const city = document.getElementById('sCity').value.trim();
   const state = document.getElementById('sState').value.trim().toUpperCase();
   const maxPrice = document.getElementById('sPrice').value;
 
   if (!city||!state) { setStatus('Please enter a city and state.'); return; }
+
+  // Check cache unless forcing refresh
+  if (!forceRefresh) {
+    const cached = getCached(city, state);
+    if (cached) {
+      window.loadResults(cached.data);
+      document.getElementById('cacheNotice').style.display = 'block';
+      document.getElementById('cacheNotice').textContent = '⚡ Showing cached results from ' + cacheAge(cached.ts) + ' — click Refresh to run a new live search.';
+      document.getElementById('refreshBtn').style.display = 'inline-flex';
+      return;
+    }
+  }
+  document.getElementById('cacheNotice').style.display = 'none';
 
   document.getElementById('runBtn').disabled = true;
   document.getElementById('resultsWrap').style.display = 'none';
@@ -534,6 +570,9 @@ async function runSearch() {
     }
 
     window.loadResults(parsed);
+    setCache(city, state, parsed);
+    document.getElementById('refreshBtn').style.display = 'inline-flex';
+    document.getElementById('cacheNotice').style.display = 'none';
   } catch(e) {
     if (e.name === 'AbortError') {
       setStatus('Search timed out. Please try again — searches typically take 30–90 seconds.');
