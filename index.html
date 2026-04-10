@@ -290,6 +290,11 @@ body{font-family:var(--ff-sans);background:var(--ink);color:var(--fog);display:f
 <script>
 // ── CITY DATA ──────────────────────────────────────────────────────────────
 const CITIES=[
+["TX","Waco",143570,54365,"South","Central TX","tx/waco"],
+["TX","Tyler",109215,67486,"South","East TX","tx/tyler"],
+["TX","Amarillo",201885,65912,"South","Panhandle TX","tx/amarillo"],
+["TX","Lubbock",264814,60895,"South","West TX","tx/lubbock"],
+["TX","Temple",89602,68204,"South","Central TX","tx/temple"],
 ["TX","Southlake",31137,200000,"South","DFW Metroplex","tx/southlake"],
 ["TX","Frisco",219304,119000,"South","DFW Metroplex","tx/frisco"],
 ["TX","Keller",45976,121000,"South","DFW Metroplex","tx/keller"],
@@ -299,12 +304,9 @@ const CITIES=[
 ["TX","Allen",110265,110000,"South","DFW Metroplex","tx/allen"],
 ["TX","Midlothian",39356,98000,"South","DFW Metroplex","tx/midlothian"],
 ["TX","Mansfield",77510,103000,"South","DFW Metroplex","tx/mansfield"],
-["VA","McLean",49627,200000,"South","Northern VA",null],
-["MD","Potomac",45000,200000,"Northeast","DC Metro",null],
 ["TN","Brentwood",45556,163000,"South","Middle TN","tn/brentwood"],
 ["WA","Sammamish",66000,155000,"West","Puget Sound","wa/sammamish"],
 ["CT","Greenwich",63000,150000,"Northeast","SW Connecticut","ct/greenwich"],
-["MD","Bethesda",62000,145000,"Northeast","DC Metro",null],
 ["GA","Milton",41546,142000,"South","Atlanta Metro","ga/milton"],
 ["WA","Redmond",67000,140000,"West","Puget Sound","wa/redmond"],
 ["KS","Leawood",33809,139000,"Midwest","KC Metro","ks/leawood"],
@@ -326,7 +328,6 @@ const CITIES=[
 ["CO","Parker",61783,111000,"West","Denver Metro","co/parker"],
 ["CO","Castle Rock",79123,107000,"West","Denver Metro","co/castle_rock"],
 ["CO","Centennial",108201,110000,"West","Denver Metro","co/centennial"],
-["CO","Highlands Ranch",102257,120000,"West","Denver Metro",null],
 ["CO","Erie",33808,117000,"West","N. Colorado","co/erie"],
 ["UT","Draper",50278,113000,"West","Wasatch Front","ut/draper"],
 ["UT","Lehi",85173,95000,"West","Utah Valley","ut/lehi"],
@@ -386,7 +387,7 @@ const CITIES=[
 ["GA","Woodstock",37381,91000,"South","Atlanta Metro","ga/woodstock"],
 ["GA","Peachtree City",39576,107000,"South","Atlanta Metro","ga/peachtree_city"],
 ["GA","Sandy Springs",107087,103000,"South","Atlanta Metro","ga/sandy_springs"],
-["SC","Bluffton",33157,88000,"South","Lowcountry","sc/bluffton"],
+["SC","Bluffton",33157,88000,"South","Lowcountry","sc/bluffton"]
 ];
 
 const SCORING=[
